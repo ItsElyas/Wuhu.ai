@@ -32,18 +32,21 @@ See [REQUIREMENTS.md](REQUIREMENTS.md) for versions. Short list: macOS + Xcode w
    brew install swiftlint
    ```
 
-### 2. Get the code
+### 2. Get the code (local-first)
+
+This project is developed **locally** for now. GitHub/Origin remotes come later — see [SYNC.md](SYNC.md).
+
 ```bash
-# Preferred (Origin)
-origin repo clone elyas-khoubach/Wuhu
-cd Wuhu
+cd /path/to/this/repo
+open HealthTracker.xcodeproj
 ```
 
-Or see [SYNC.md](SYNC.md) for pull/visibility details and troubleshooting when Xcode shows stale errors.
+When you add GitHub later:
 
 ```bash
-git clone <REPO_URL>
-cd HealthTracker
+git clone <GITHUB_REPO_URL>
+cd Wuhu
+open HealthTracker.xcodeproj
 ```
 
 ### 3. Add your API key (optional)
@@ -144,6 +147,7 @@ Coverage includes Vitality Age boundaries, snapshot JSON, score decoding, workou
 | Empty dashboard | Enable Mock Data, or grant Health access on a device |
 | Bundle identifier / signing errors | Bundle ID must be unique. Default is `com.elyaskhoubach.wuhu`. Change it under Signing & Capabilities if Apple says it is unavailable, pick your Team, keep Automatic signing on. Clean build folder (Product → Clean Build Folder) and run again. |
 | Signing errors | Select your Team under Signing & Capabilities; ensure you are signed into Xcode with an Apple ID (Settings → Accounts) |
+| Stale compile errors after agent edits | Make sure Xcode opened **this** local folder (`open HealthTracker.xcodeproj` from the repo root). Remotes are optional until GitHub is wired up. |
 | Simulator name not found | `xcrun simctl list devices available` and update the destination |
 | AI scores missing | Optional — local fallback still works; check `Secrets.xcconfig` |
 | Body Map 3D blank | Use the 2D map toggle; procedural body is the default without `body.usdz` |
