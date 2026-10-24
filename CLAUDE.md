@@ -16,8 +16,53 @@ HealthTracker is a simple, clean iOS dashboard app built in Xcode with SwiftUI. 
 7. Workouts sub-screen (log and review workouts)
 8. Vitality Age: a single "ego stat" metric derived from the user's own data
 9. Body Map: an interactive 3D body where the user taps a body part to mark it as injured (red) or sore / recently worked (yellow)
+10. Heal tips: tap a red (injured) body part to get part-specific wellness recovery recommendations (not medical advice)
+11. Multi-user accounts: sign up, log in, log out, with per-user data separation
+12. Onboarding intro: age, height, weight, activity level, sports played
+13. Sport-based recommendations, including isometric exercises with step-by-step how-to and a hold timer
 
-**Non-goals (do not build unless asked):** accounts/auth, social features, backend sync, Apple Watch app, in-app purchases.
+**Non-goals (do not build unless asked):** social features, Apple Watch app, in-app purchases, uploading raw Health data to a server.
+
+## Building with Kiro (hackathon requirement, read first)
+
+This project is entered in the Hackachusetts hackathon, **Healthcare & Biotech** track. The rules require that the project is built with Kiro and that insufficient use of Kiro can disqualify the entry. Treat Kiro as the **primary build tool**. Cursor or any other editor may be used only for small edits, never as a substitute for Kiro-driven development.
+
+### Hard requirements
+- The `/.kiro` directory exists at the repo root and is committed. **Never add `.kiro` or any subfolder to `.gitignore`.**
+- The repo is public, contains all source, assets, and run instructions (see "Required Deliverables").
+- A `KIRO_USAGE.md` write-up exists and is kept current (see below).
+- Max 4 team members. Demo video under 3 minutes, publicly hosted, no third-party trademarks or copyrighted music.
+- Do not use WHOOP, game, or other third-party trademarks in the app, README, or video.
+
+### Kiro features to use and document
+Use each of these for real, and note concrete examples as you go.
+
+| Feature | How we use it on this project |
+|---|---|
+| **Spec-driven development** | One spec per feature in `.kiro/specs/<feature>/` with `requirements.md`, `design.md`, `tasks.md`. Specs: `auth-onboarding`, `healthkit-data`, `dashboard`, `scoring-pipeline`, `body-map`, `workouts`, `recommendations`, `chatbot`. Write or update the spec **before** coding the feature, then execute tasks from `tasks.md` and check them off. |
+| **Steering docs** | `.kiro/steering/`: `product.md` (goals, users, tracks), `tech.md` (SwiftUI, iOS 18, HealthKit, Supabase, conventions), `structure.md` (folder layout), plus `health-privacy.md` (no raw health data off device, no diagnoses, disclaimers) and `swiftui-style.md`. Keep them short and specific; update when decisions change. |
+| **Agent hooks** | `.kiro/hooks/`: e.g. on saving a Swift file run SwiftLint and the related tests; on changing `Core/Models` or the snapshot structs, regenerate/validate the JSON schema fixtures and update docs; on adding a feature, remind to update README and `KIRO_USAGE.md`; a check that `.kiro` is not gitignored and no secrets are staged. |
+| **MCP** | `.kiro/settings/mcp.json`: e.g. a Supabase MCP server to inspect the schema and RLS policies, and an Xcode build/test MCP server so the agent can build and run tests itself. Document what each enabled that would have been slow or impossible. |
+| **Property-based testing (PBT)** | Enable for requirements with clear invariants: Vitality Age calculator (never outside -10..+10, better inputs never raise the age), snapshot builder (30-day cap, rounding, no unavailable fields), `WorkoutLoadMapper`, body status rules (red never auto-set), onboarding validation ranges, `RecommendationEngine` (never recommends exercises loading an injured part). Record any bug PBT found that unit tests missed. |
+| **Powers** | Use any relevant Kiro powers (for example for Supabase or testing best practices) and list which ones and why. |
+| **Tools** | Prefer Kiro IDE for specs and agentic building. If Kiro CLI or other Kiro surfaces are also tried, note how they differed. |
+
+### `KIRO_USAGE.md` (required, keep updated during the build)
+Sections that answer the judges' questions directly:
+1. Which Kiro tools were used (IDE, CLI, Web, Crew) and how they differed
+2. Spec-driven development: how specs were structured, how it improved the process, comparison with vibe coding (include one concrete example of each)
+3. Agent hooks: which workflows were automated and what improved
+4. Steering docs: what strategy made the biggest difference
+5. MCP: what it enabled
+6. Property-based testing: what it caught
+7. Powers and third-party integrations used
+8. Short "what we would do differently" list
+
+### Rules for the AI assistant when working in Kiro
+- Start every non-trivial feature from a spec: requirements (EARS-style acceptance criteria), then design, then tasks.
+- Keep `tasks.md` accurate. Mark tasks done only after building and testing.
+- When you add a hook, steering file, MCP server, or PBT, append a short entry to `KIRO_USAGE.md` the same day.
+- Never remove or hide `.kiro` content to "clean up" the repo.
 
 ## Tech Stack
 
@@ -29,7 +74,8 @@ HealthTracker is a simple, clean iOS dashboard app built in Xcode with SwiftUI. 
 - Data: HealthKit (source of truth for health data), SwiftData (workouts logged in-app, cached summaries, chat history)
 - Charts: Swift Charts
 - Concurrency: async/await, `@MainActor` for view models. No Combine unless needed.
-- Dependencies: none by default. Ask before adding any Swift Package.
+- Backend / auth: Supabase (Auth + Postgres with Row Level Security) via the `supabase-swift` package
+- Dependencies: `supabase-swift` is approved. Ask before adding any other Swift Package.
 
 ## Project Structure
 
@@ -46,11 +92,18 @@ HealthTracker/
 │   ├── Dashboard/        # DashboardView, DailyView, WeeklyView, cards
 │   ├── Workouts/         # WorkoutListView, WorkoutLogView, WorkoutDetailView
 │   ├── Chat/             # ChatView, ChatViewModel
-│   ├── BodyMap/          # BodyMapView, BodyMapViewModel, PartDetailSheet, BodyPartRegistry
+│   ├── Auth/             # SignInView, SignUpView, ForgotPasswordView, AuthViewModel, AuthService
+│   ├── Onboarding/       # OnboardingFlow, step views, OnboardingViewModel, validation
+│   ├── Recommendations/  # RecommendationEngine, SportPlans.json, ExerciseDetailView, HoldTimerView
+│   ├── Profile/          # ProfileView (edit onboarding answers, sign out, delete account)
+│   ├── BodyMap/          # BodyMapView, BodyMapViewModel, PartDetailSheet, BodyPartRegistry,
+│   │                     # HealingRecommendations, BodyMap2DView, BodyMap3DView, WorkoutLoadMapper
 │   └── Vitality/         # VitalityAgeView, breakdown
 ├── DesignSystem/         # Colors, Typography, reusable components
 ├── Resources/
+│   └── Models/           # LICENSE.md, optional body.usdz
 └── Tests/
+    └── Fixtures/         # good_week / bad_week / sparse_data ScoreResult JSON
 ```
 
 Keep one primary type per file. Views stay small; extract subviews when a body exceeds ~60 lines.
@@ -109,10 +162,22 @@ A 3D body the user can rotate and tap. Each body part is color coded by status, 
 ### Interaction
 - Rotate with drag, pinch to zoom, double tap to reset the view. Front/back quick toggle button.
 - Tap a part: highlight it, show a bottom sheet `PartDetailSheet` with: part name, current status, a segmented control (Healthy | Sore | Injured), severity slider 1 to 5, optional note, date started, and recent workouts that hit this part.
-- When the part is **injured (red)**, `PartDetailSheet` shows a prominent **How to heal** section driven by `HealingRecommendations` (part-specific wellness tips: rest, gentle mobility, load management, when to seek care). Tips are general wellness guidance only — never diagnosis or treatment. Tapping a red region is the primary path into these recommendations.
 - Selecting a part with no status change should do nothing to saved data.
 - Also provide an accessible list view (VoiceOver users cannot rely on the 3D scene): a list of all body parts with status and the same detail sheet.
 - Swipe or toggle between Daily and Weekly view: Weekly shows a heat map of cumulative load per part over 7 days.
+- Legend must use icons as well as color (e.g. `cross.case.fill` for injured, `exclamationmark.triangle.fill` for sore/worked) so status is not color-only.
+- Accessibility hint on injured regions: "Opens healing recommendations".
+
+### Heal tips (injured / red parts)
+When the user taps a **red (injured)** body part — on the 2D map, 3D map, or the accessible list — `PartDetailSheet` must show a prominent **How to heal** section. This is a required Body Map feature.
+
+- Source of truth: `HealingRecommendations` in `Features/BodyMap/HealingRecommendations.swift` (pure, testable; one recommendation set per `BodyPart`).
+- Content for each part: short summary, 3–5 tips (protect/rest, ease back in, sleep/fuel, plus region-specific mobility or load swaps), and a "seek care when" note scaled by severity.
+- Severity 4–5, or injured for 7+ days: stronger clinician / physical therapist suggestion (same rule as Safety and copy below).
+- Copy rules: general wellness only — never diagnose, prescribe, or claim to treat. Use wording like "You marked this area as injured." Always show `HealingRecommendations.disclaimer`.
+- Do **not** recommend training through a red part. Chat and `RecommendationEngine` must also refuse or filter exercises that load an injured part.
+- Selecting Injured in the status control should reveal How to heal immediately (before Save), so the user sees tips while editing.
+- Mock mode seeds at least one injured part (e.g. `rightKnee`) so heal tips are demoable without setup.
 
 ### Body parts (regions)
 Use a fixed registry in `BodyPartRegistry` (an enum `BodyPart: String, CaseIterable, Codable`). Entity names in the 3D file must match the enum raw values exactly.
@@ -139,8 +204,8 @@ Keep it to these regions for v1. Do not add finer muscle groups without asking.
 
 ### Safety and copy
 - Never diagnose. Use wording like "marked as injured by you". If a part stays red for 7 or more days, or severity is 4 to 5, show a gentle note suggesting the user see a clinician or physical therapist.
-- Show a short disclaimer on the Body Map screen: tracking aid only, not medical advice.
-- The chatbot may read body status for context but must not tell the user to train through a red part.
+- Show a short disclaimer on the Body Map screen: tracking aid only, not medical advice. Mention that tapping a red part opens recovery tips that are wellness guidance only.
+- The chatbot may read body status for context but must not tell the user to train through a red part. Prefer pointing the user at the Body Map heal tips for that part.
 
 ### Feeds the LLM scoring
 Body status is included in the `HealthSnapshot` (see `body_status` in the schema) so the LLM can factor soreness and injuries into Readiness and Effort recommendations and explain them.
@@ -153,6 +218,164 @@ Body status is included in the `HealthSnapshot` (see `body_status` in the schema
 - Use `HKStatisticsCollectionQuery` for daily/weekly aggregates; `HKSampleQuery` for sleep and workouts.
 - Handle: authorization denied, no data, and simulator (HealthKit has limited data there). Provide a `MockHealthDataProvider` with realistic sample data and use it in previews and UI tests.
 - Health data stays on device. Do not log raw health values to the console in release builds.
+
+## Accounts, Login, and Multi-User Support
+
+Login must genuinely work for multiple different users, each with their own profile and data. Use **Supabase Auth** with email + password. Sign in with Apple is a stretch goal only (it needs a paid Apple Developer account); do not make it required.
+
+### Backend (`supabase/schema.sql`, committed)
+```sql
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text,
+  age int check (age between 13 and 100),
+  height_cm numeric check (height_cm between 100 and 250),
+  weight_kg numeric check (weight_kg between 30 and 300),
+  sex text check (sex in ('male','female','other','prefer_not_to_say')),
+  activity_level text check (activity_level in
+    ('sedentary','lightly_active','moderately_active','very_active','athlete')),
+  experience_level text check (experience_level in ('beginner','novice','expert')),
+  plays_sports boolean not null default false,
+  sports jsonb not null default '[]'::jsonb,
+  units text not null default 'imperial' check (units in ('imperial','metric')),
+  onboarding_completed boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+create policy "read own profile" on public.profiles
+  for select using (auth.uid() = id);
+create policy "insert own profile" on public.profiles
+  for insert with check (auth.uid() = id);
+create policy "update own profile" on public.profiles
+  for update using (auth.uid() = id) with check (auth.uid() = id);
+```
+- Row Level Security is mandatory so one user can never read or change another user's row. Add `supabase/tests/rls_test.sql` that proves it (user A cannot select or update user B's profile).
+- Health data (HealthKit, workouts, body status) stays on the device. Only the profile row lives on the server.
+- The app uses the project URL and the **anon** key only, from `Secrets.xcconfig`. Never put the `service_role` key in the app or repo.
+
+### Flows
+- Sign up: email, password (min 8 characters), confirm password, inline validation, friendly errors (email in use, weak password, offline).
+- Sign in, sign out, forgot password (reset email), session persistence across launches (the SDK keeps the session in the Keychain), automatic token refresh.
+- Delete account: removes the profile row and all local data for that user (via a Supabase RPC or Edge Function), with a confirmation dialog.
+- Email confirmation: document in the README how to turn it off for local testing or how confirmation works.
+
+### App state and routing
+`AuthViewModel` exposes one of: `loading`, `signedOut`, `needsOnboarding`, `signedIn`. The root view switches on it. After sign in, if `onboarding_completed` is false, go to Onboarding; otherwise go to the Dashboard. Put Supabase behind an `AuthService` protocol with `SupabaseAuthService` and `MockAuthService`.
+
+### Per-user data on one device
+- Every SwiftData model (`BodyPartStatus`, workouts, cached `ScoreResult`, chat history, onboarding draft) has a `userId` and every query filters by the current user.
+- On sign out, clear in-memory state and cached scores; the next user must see nothing of the previous user's data.
+- Be honest in the UI and README: Apple Health data belongs to the phone, so two accounts on the same iPhone would see the same HealthKit data. Real health data is meant for one account per device; use demo mode when sharing a device.
+
+### Judges and demo access
+- Add a **Continue as Demo** button on the sign-in screen: no account, mock health data, mock scoring. This is also how someone can run the app with no Supabase project.
+- Create a test account on the real Supabase project and put its email and password in the README "Testing" section, as the hackathon testing rules require when a project is private. Keep the project free to access.
+- Include Supabase setup steps in the README: create a project, run `supabase/schema.sql` in the SQL editor, copy the URL and anon key into `Secrets.xcconfig`.
+
+### Security
+- Never store passwords in the app; never log credentials, tokens, or full emails in release builds.
+- Validate inputs on the client and rely on the database `check` constraints as the real guard.
+- Show generic messages for failed sign in (do not reveal whether an email exists).
+
+### Tests
+- Auth state machine with `MockAuthService`: signed out → sign up → needs onboarding → signed in → sign out.
+- Two-user isolation: user A's workouts, body status, and scores are not visible after switching to user B.
+- Password and email validation rules (include property tests).
+- RLS script run against the Supabase project or a local Supabase instance.
+
+## Onboarding Intro
+
+Shown once after a new account is created (and re-runnable from Profile). A short, friendly multi-step flow with a progress indicator, Back and Next buttons, and inline validation. Required steps cannot be skipped.
+
+1. **Welcome**: one screen on what the app does and what stays private (Health data stays on the phone).
+2. **About you**
+   - Age (whole number, 13 to 100; under 13 is blocked with a kind message)
+   - Height (ft + in or cm) and weight (lb or kg), with a unit toggle. Default to imperial for US locale, metric otherwise. Store canonical metric values.
+   - Sex is optional ("Prefer not to say" allowed); it is only used for age and sex adjusted norms.
+   - Prefill height and weight from HealthKit if the user has already granted access; the user can edit.
+   - Valid ranges: height 100 to 250 cm, weight 30 to 300 kg (match the database `check` constraints).
+3. **Activity level** (single choice, with plain-language descriptions)
+   - `sedentary`: little or no exercise
+   - `lightly_active`: light exercise 1 to 3 days a week
+   - `moderately_active`: moderate exercise 3 to 5 days a week
+   - `very_active`: hard exercise 6 to 7 days a week
+   - `athlete`: training twice a day or competing
+4. **Experience level** (single choice, required, with plain-language descriptions)
+   - `beginner`: new to exercise, or coming back after a long break (under about 6 months of steady training)
+   - `novice`: some steady training, roughly 6 months to 2 years, comfortable with basic form
+   - `expert`: 2+ years of steady training or competitive, comfortable with advanced variations
+   - If unsure, suggest picking the lower level; it can be changed any time in Profile.
+5. **Sports**
+   - "Do you play any sports?" Yes / No.
+   - If yes: multi-select sports (Basketball, Soccer, Football, Baseball/Softball, Volleyball, Tennis, Pickleball, Running/Track, Swimming, Cycling, Hockey, Lacrosse, Golf, Martial arts/Boxing, Rowing, Climbing, Weightlifting, Other with a text field). For each chosen sport, an optional skill level (`beginner`, `novice`, or `expert`; defaults to the overall experience level) and an "in season" toggle.
+   - If no: continue, and still show general recommendations.
+6. **Review and finish**: summary of answers (editable), then save to Supabase and local SwiftData, set `onboarding_completed = true`, and show the first recommendations.
+
+Behavior:
+- Save progress locally per user so quitting midway resumes where they left off.
+- Answers feed the Health JSON snapshot `profile` block and the recommendation engine.
+- Everything is editable later in the Profile screen.
+- Accessible: labels, Dynamic Type, no color-only cues, steppers or pickers instead of tiny text fields where possible.
+- Unit test validation and unit conversion (ft/in ↔ cm, lb ↔ kg) with property tests (round trips stay within rounding error).
+
+## Sport-Based Recommendations
+
+After onboarding, the app recommends exercises tailored to the user's sports, activity level, and body status. Recommendations include **isometric exercises** with a clear how-to.
+
+### Design
+- `RecommendationEngine` is a pure, deterministic Swift type. It reads the profile, sports, activity level, and `BodyPartStatus` and returns a ranked list of `Recommendation`.
+- The exercise library lives in `Features/Recommendations/SportPlans.json` (easy to edit, no code changes). Each exercise has: `id`, `title`, `category` (`isometric`, `strength`, `mobility`, `recovery`, `conditioning`), `sports` it helps, `targetParts` (`BodyPart` raw values), `why` (one sentence), `steps` (numbered how-to), `prescription` (sets, `holdSeconds` or reps, `restSeconds`, `frequencyPerWeek`), `variations` (one each for `beginner`, `novice`, `expert`, with its own steps tweak and prescription), `safetyNotes`, and `minAge`.
+- Every sport the user selects must produce at least 2 recommendations, with at least 1 isometric exercise where one applies.
+- Scale prescriptions by **experience level first**, then adjust by activity level:
+  - `beginner`: easiest variation, shorter holds (about 10 to 20 s), 2 sets, focus on form cues, no added weight, 2 to 3 days a week.
+  - `novice`: standard variation, about 20 to 40 s, 3 sets, 3 days a week.
+  - `expert`: harder variation (for example single-leg or weighted), about 30 to 60 s, 3 to 4 sets, with a progression suggestion (longer hold, added load, or less stable surface).
+  - Activity level fine-tunes volume: `sedentary` and `lightly_active` trim sets and frequency; `very_active` and `athlete` allow the upper end of the range.
+  - If experience level and activity level disagree (for example `expert` but `sedentary`), use the more conservative option.
+  - Show the level on each exercise ("Beginner version") and let the user switch to an easier or harder variation. Suggest moving up a level after the user logs several completed sessions at the current one.
+- Variation examples to include in the library:
+  - Wall sit: beginner shallow squat (about 45 to 60 degrees), novice 90 degrees, expert single-leg or with a weight held at the chest.
+  - Plank: beginner on knees or incline, novice full forearm plank, expert with feet elevated or alternating arm/leg lifts.
+  - Glute bridge hold: beginner two-leg, novice two-leg with a longer hold, expert single-leg.
+  - Isometric push-up hold: beginner incline or knees, novice standard half-way hold, expert full bottom hold or feet elevated.
+- Optional LLM personalization: the LLM may only **choose and order exercise IDs from the library** and write a short personalized reason. It must not invent exercises or change prescriptions. Validate returned IDs; ignore unknown ones.
+- Mapping starting point (edit freely): basketball, volleyball, pickleball → quads, knees, ankles, calves; soccer, running, lacrosse, hockey → glutes, hamstrings, core; tennis, pickleball, baseball → shoulders, core; climbing, martial arts → forearms, shoulders, core; football → all-round legs, core, neck.
+
+### Starter isometric exercises (must be in the library with full how-to)
+Each needs a numbered, beginner-friendly how-to. Starter set:
+1. **Wall sit** (quads, glutes, knees): back flat on a wall, feet about shoulder-width and roughly two feet from the wall; slide down until knees are near 90 degrees and over the ankles; keep back flat and breathe normally; hold 20 to 45 s, 3 sets, 60 s rest, 3 days a week.
+2. **Plank** (core, shoulders): forearms on the floor, elbows under shoulders; body in a straight line from head to heels; squeeze glutes and abs, do not let hips sag or pike; hold 20 to 40 s, 3 sets.
+3. **Side plank** (obliques, hips): on one forearm with feet stacked, lift hips so the body is straight; hold 15 to 30 s each side, 2 to 3 sets.
+4. **Glute bridge hold** (glutes, hamstrings, lower back): lie on back, knees bent, feet flat; lift hips until shoulders, hips, and knees form a line; squeeze glutes, ribs down; hold 20 to 40 s, 3 sets.
+5. **Spanish squat hold** (quads, knees; band around a fixed post): lean back against the band with arms out, sit into a shallow squat with shins vertical; hold 20 to 40 s, 3 sets.
+6. **Heel raise hold** (calves, ankles): rise onto toes and hold at the top, weight over the big toe; hold 15 to 30 s, 3 sets; support with a wall if needed.
+7. **Isometric shoulder external rotation** (rotator cuff; for tennis, pickleball, baseball, swimming): stand sideways to a wall, elbow bent 90 degrees at your side, back of the hand against the wall; press gently into the wall without shrugging; hold 5 to 10 s, 5 reps, 2 sets.
+8. **Isometric push-up hold** (chest, shoulders, triceps): lower to the bottom of a push-up (or half way), hold with a flat back; hold 10 to 20 s, 3 sets; use knees or an incline to scale.
+
+### UI
+- "Recommended for you" section at the top of the Workouts screen, grouped by sport, with a filter for isometrics.
+- `ExerciseDetailView`: title, target body parts, why, numbered steps, safety notes, prescription, and a **hold timer** (`HoldTimerView`) with start/pause/reset, a set counter, rest countdown, and haptic cues. Respect Reduce Motion.
+- "Mark done" logs a workout entry and bumps yellow `worked` intensity on the target body parts (via `WorkoutLoadMapper`).
+- Use SF Symbols or simple original drawings for illustrations. No copyrighted images or videos.
+
+### Safety rules (required)
+- **Never recommend an exercise whose `targetParts` include a body part marked injured (red).** Filter it out and show a short note ("Skipped because your right knee is marked injured").
+- For `sore` (yellow) parts, show a lighter variation or shorter hold instead of the full prescription.
+- Remind users to breathe normally and never hold their breath during isometrics. Isometric holds can raise blood pressure, so add a note to check with a doctor first for anyone with high blood pressure, a heart condition, or who is pregnant.
+- Stop and rest if there is sharp pain, dizziness, or numbness. Show a short "wellness tool, not medical advice" disclaimer on the recommendations screens.
+- Users under 18: bodyweight-only exercises, no max-effort holds, and keep holds on the shorter end.
+- The chatbot may explain exercises from the library but must not prescribe training through pain.
+
+### Tests
+- Engine returns at least 2 recommendations per selected sport, including an isometric where applicable.
+- No recommendation targets an injured part (property test over random body status combinations).
+- Prescriptions scale correctly with experience level, activity level, and age; output is deterministic for the same input.
+- A beginner never receives an expert variation; mismatched experience and activity levels resolve to the more conservative option (property test).
+- Every exercise has all three variations (`beginner`, `novice`, `expert`).
+- Every `targetParts` value in the JSON is a valid `BodyPart`; every exercise has at least 3 steps and safety notes.
 
 ## Apple Health → JSON → LLM Scoring Pipeline
 
@@ -179,7 +402,13 @@ Send summaries, never raw sample streams. Target under ~4 KB. Omit fields that a
     "age_years": 22,
     "biological_sex": "male",
     "height_cm": 178,
-    "weight_kg": 76
+    "weight_kg": 76,
+    "activity_level": "moderately_active",
+    "experience_level": "novice",
+    "sports": [
+      { "name": "basketball", "level": "novice", "in_season": true },
+      { "name": "pickleball", "level": "beginner", "in_season": false }
+    ]
   },
   "today": {
     "steps": 6120,
@@ -294,6 +523,7 @@ The prompt must tell the model to:
 - Status rules: red is never set by auto logic; `worked` never overwrites `injured`; clearing a part resets it to healthy.
 - Tap handling: entity name to `BodyPart` mapping covers every enum case (test that the registry and the model entity names match).
 - Snapshot includes only non-healthy parts and omits notes.
+- `HealingRecommendations`: every `BodyPart` returns a non-empty tip list; high severity includes stronger seek-care copy; disclaimer string is non-empty.
 
 ### Testing the pipeline
 - Snapshot builder: given mock HealthKit data, assert exact JSON output, rounding, field omission, and the 30-day cap.
@@ -333,7 +563,7 @@ When an AI assistant builds or substantially changes this project, it **must** c
 ### 1. `README.md`
 Must contain, in this order:
 1. **Title and one-line description**
-2. **Features**: Daily/Weekly dashboard, steps, heart rate, sleep, calories, workouts, Body Map, chatbot, Vitality Age and other scores
+2. **Features**: Daily/Weekly dashboard, steps, heart rate, sleep, calories, workouts, Body Map (including heal tips for injured/red parts), chatbot, Vitality Age and other scores, accounts/onboarding, sport recommendations
 3. **Screenshots or a demo GIF** (placeholder section if not yet captured)
 4. **Requirements**: the list below
 5. **Setup and Run (step by step)**: see the template below
@@ -345,6 +575,9 @@ Must contain, in this order:
 11. **Troubleshooting**
 12. **Disclaimer**: wellness tool, not medical advice
 13. **License and asset credits** (including the 3D model source and license)
+14. **Accounts and testing**: Supabase setup steps, the demo/test account credentials, and the "Continue as Demo" option
+15. **How Kiro was used**: short summary linking to `KIRO_USAGE.md`, and a note that the `.kiro/` folder is included
+16. **Hackathon info**: challenge track (Healthcare & Biotech) and a link to the demo video
 
 ### 2. `REQUIREMENTS.md`
 List everything needed to run the project, with versions:
@@ -352,7 +585,9 @@ List everything needed to run the project, with versions:
 - Xcode (latest stable; must include the iOS 18 or newer SDK)
 - iOS Simulator runtime, iOS 18 or newer (or a physical iPhone on iOS 18 or newer)
 - Apple ID signed into Xcode (free account is enough to run on your own device; HealthKit needs a real device or simulator, see below)
+- A free Supabase project (URL and anon key) for login; not needed for "Continue as Demo"
 - An LLM provider API key (optional: the app falls back to the local calculator without one)
+- Kiro installed, if you want to explore the specs, hooks, and steering in `.kiro/`
 - Optional: Homebrew and SwiftLint
 - Swift Package dependencies, if any (name, version, purpose). Currently none.
 - A note on what works in the simulator vs on a real device (HealthKit data is limited in the simulator; use mock data or add samples in the Health app)
@@ -429,7 +664,7 @@ Rules for these instructions:
 To make the app runnable by anyone without Health data or an API key:
 - Add a launch argument `-useMockData` and a Settings toggle that swaps in `MockHealthDataProvider` and `MockScoringService`.
 - The README must explain how to enable it (Xcode: Product → Scheme → Edit Scheme → Run → Arguments → add `-useMockData`).
-- Mock mode must populate all screens: Daily, Weekly, Workouts, Body Map (a couple of yellow and one red part), Vitality Age, and Chat.
+- Mock mode must populate all screens: Daily, Weekly, Workouts, Body Map (a couple of yellow and one red part — tapping the red part must show How to heal), Vitality Age, and Chat.
 
 ### Keep docs in sync
 - If a command, scheme name, setting, or dependency changes, update README and REQUIREMENTS in the same change.
@@ -465,14 +700,18 @@ swiftlint
 6. Never commit secrets, API keys, or real health data.
 7. When requirements are ambiguous, ask one concise question rather than assuming.
 8. Always create or update `README.md`, `REQUIREMENTS.md`, and the step-by-step run instructions (see "Required Deliverables"). Do this without being asked.
+9. Follow the "Building with Kiro" section: spec first, keep `.kiro/` committed, and log Kiro usage in `KIRO_USAGE.md`.
+10. Auth, onboarding, and recommendations are core features. Do not stub login: it must work for multiple real users through Supabase, with Row Level Security.
 
 ## Suggested Build Order
 
-1. Project setup, folder structure, design system basics
+1. Kiro setup first (`.kiro/steering`, first specs, hooks, MCP), then project setup, folder structure, design system basics
 2. Mock data layer + models + dashboard UI (Daily, then Weekly)
+2b. Supabase project + `schema.sql` with RLS, `AuthService`, sign up / sign in / sign out, then Onboarding and Profile, with per-user local data and a demo mode
 3. HealthKit integration behind the provider protocol
 4. Workouts screen with SwiftData
-4b. Body Map: `BodyPart` enum + `BodyPartStatus` model + 2D body map first, then the 3D RealityKit view, then `WorkoutLoadMapper` auto-yellow
+4a. `RecommendationEngine`, `SportPlans.json`, exercise detail screen with hold timer (needs onboarding profile and Body Map status)
+4b. Body Map: `BodyPart` enum + `BodyPartStatus` model + 2D body map first, then the 3D RealityKit view, then `WorkoutLoadMapper` auto-yellow, then `HealingRecommendations` + How to heal in `PartDetailSheet` for injured parts
 5. `HealthSnapshotBuilder` + JSON schema + `MockScoringService`, then `LLMScoringService` with validation and fallback `VitalityAgeCalculator`, plus tests and UI
 6. Chatbot with mock service, then real provider (reusing the snapshot and score as context)
 7. Polish: empty/error states, accessibility, app icon
@@ -489,3 +728,8 @@ swiftlint
 - `README.md` and `REQUIREMENTS.md` exist, are accurate, and include step-by-step macOS run instructions
 - `Secrets.example.xcconfig` is committed and `Secrets.xcconfig` is git-ignored
 - App runs end to end in mock mode with no API key and no Health data
+- Two different accounts can sign up, complete onboarding, and see only their own data
+- Onboarding collects age, height, weight, activity level, experience level (beginner, novice, expert), and sports, and drives the recommendations
+- Tapping a red (injured) Body Map part opens heal tips (`HealingRecommendations`) with disclaimer; no diagnosis language
+- `.kiro/` is committed (not gitignored) and contains steering, specs, hooks, and MCP config
+- `KIRO_USAGE.md` is complete and the demo video is under 3 minutes
