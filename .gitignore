@@ -1,0 +1,35 @@
+# Xcode
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Secrets — never commit real keys
+Secrets.xcconfig
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Swift Package Manager
+.swiftpm/
+Packages/
+Package.resolved
+
+# CocoaPods / Carthage (unused, ignore if present)
+Pods/
+Carthage/Build/
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Local agent uploads
+uploads/

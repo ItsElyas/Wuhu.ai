@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "vitality_age": {
+    "years": 26.2,
+    "delta_vs_chronological": 4.2,
+    "confidence": "medium",
+    "drivers": [
+      { "metric": "sleep_duration", "effect_years": 1.8, "note": "Sleep is short versus your baseline." },
+      { "metric": "resting_hr", "effect_years": 1.2, "note": "Resting HR is elevated." }
+    ]
+  },
+  "readiness": { "score": 42, "label": "low", "summary": "Recovery markers are below baseline." },
+  "effort": { "score": 16.5, "scale_max": 21, "summary": "High load with limited recovery." },
+  "sleep_score": { "score": 48, "summary": "Short and inconsistent sleep." },
+  "method": "Fixture bad week.",
+  "insufficient_data": false,
+  "disclaimer": "Estimate for motivation only, not medical advice."
+}

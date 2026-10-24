@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "vitality_age": {
+    "years": 20.6,
+    "delta_vs_chronological": -1.4,
+    "confidence": "medium",
+    "drivers": [
+      { "metric": "resting_hr", "effect_years": -0.8, "note": "Resting HR is below your 30-day norm." },
+      { "metric": "sleep_consistency", "effect_years": 0.5, "note": "Bedtime varies by about 40 minutes." }
+    ]
+  },
+  "readiness": { "score": 78, "label": "good", "summary": "HRV and resting HR are near baseline." },
+  "effort": { "score": 11.4, "scale_max": 21, "summary": "Moderate day from a 35 minute run." },
+  "sleep_score": { "score": 84, "summary": "Solid duration, slightly low deep sleep." },
+  "method": "Fixture good week.",
+  "insufficient_data": false,
+  "disclaimer": "Estimate for motivation only, not medical advice."
+}
