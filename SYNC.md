@@ -6,21 +6,21 @@ Edits happen in this project folder. **GitHub / Origin remotes are deferred** �
 
 | Open this | Not this |
 |---|---|
-| **`HealthTracker.xcodeproj`** (repo root) | Individual `.swift` files |
-| Scheme **HealthTracker**, then **Cmd+R** | `swift HealthTrackerApp.swift` |
+| **`Wuhu.xcodeproj`** (repo root) | Individual `.swift` files |
+| Scheme **Wuhu**, then **Cmd+R** | `swift WuhuApp.swift` |
 
-App entry (automatic): [`HealthTracker/App/HealthTrackerApp.swift`](HealthTracker/App/HealthTrackerApp.swift). Full steps: [RUN.md](RUN.md).
+App entry: [`Wuhu/App/WuhuApp.swift`](Wuhu/App/WuhuApp.swift). Migration from HealthTracker: [MIGRATION.md](MIGRATION.md). Run steps: [RUN.md](RUN.md).
 
 ## Open in Xcode (on this Mac)
 
 ```bash
 cd /path/to/this/repo
-open HealthTracker.xcodeproj
+open Wuhu.xcodeproj
 ```
 
 Signing (first run):
 
-1. HealthTracker target → **Signing & Capabilities**
+1. **Wuhu** target → **Signing & Capabilities**
 2. Team → your Personal Team  
 3. Bundle Identifier → `com.elyaskhoubach.wuhu`  
 4. Automatically manage signing → on  

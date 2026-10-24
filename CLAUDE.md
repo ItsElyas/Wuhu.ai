@@ -1,5 +1,7 @@
 # CLAUDE.md — HealthTracker (iOS / SwiftUI)
 
+> **Xcode project:** open `Wuhu.xcodeproj` at repo root; app sources in `Wuhu/`, entry `Wuhu/App/WuhuApp.swift`. The old `HealthTracker.xcodeproj` was removed — see [MIGRATION.md](MIGRATION.md).
+
 Project instructions for AI coding assistants (Cursor, Claude Code). Read this fully before making changes.
 
 ## Project Overview

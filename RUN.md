@@ -1,47 +1,42 @@
-# How to run HealthTracker (local)
+# How to run Wuhu (local)
 
 You do **not** run a single `.swift` file. iOS apps launch from Xcode.
 
 ## Steps
 
-1. Open the project (repo root):
+1. Open the **new** project (repo root):
 
    ```bash
-   open HealthTracker.xcodeproj
+   open Wuhu.xcodeproj
    ```
 
-2. In Xcode’s toolbar:
-   - **Scheme:** `HealthTracker`
-   - **Destination:** any **iPhone** simulator on **iOS 18+** (e.g. iPhone 16)
+   Do **not** use `HealthTracker.xcodeproj` (removed). See [MIGRATION.md](MIGRATION.md).
 
-3. **Signing** (once): target **HealthTracker** → **Signing & Capabilities** → your **Team** → Bundle ID `com.elyaskhoubach.wuhu`
+2. In Xcode’s toolbar:
+   - **Scheme:** `Wuhu`
+   - **Destination:** any **iPhone** simulator on **iOS 18+**
+
+3. **Signing** (once): target **Wuhu** → **Signing & Capabilities** → your **Team** → Bundle ID `com.elyaskhoubach.wuhu`
 
 4. Press **Cmd+R** (Run).
 
-Mock data is on by default (`-useMockData` is enabled in the scheme), so you do not need Apple Health or an API key.
+Mock data is on by default (`-useMockData` in the scheme).
 
-## Entry point (reference)
+## Entry point
 
-The app starts here — Xcode uses this automatically when you run the scheme:
+`Wuhu/App/WuhuApp.swift` (`@main` → `RootView`)
 
-`HealthTracker/App/HealthTrackerApp.swift` (`@main` → `RootView`)
+## Chat & Vitality (one file each)
 
-## Which Swift files matter (Chat & Vitality fixes)
+| Tab | File |
+|-----|------|
+| Chat | `Wuhu/Features/Chat/ChatView.swift` |
+| Vitality | `Wuhu/Features/Vitality/VitalityAgeView.swift` |
 
-These tabs were rebuilt under **new filenames** so Xcode stops compiling old broken views:
-
-| Tab | Run this (via scheme) | Source file |
-|-----|------------------------|-------------|
-| Chat | `ChatScreen` in `RootView` | `HealthTracker/Features/Chat/ChatScreen.swift` |
-| Vitality | `VitalityAgeScreen` in `RootView` | `HealthTracker/Features/Vitality/VitalityAgeScreen.swift` |
-
-If Xcode still shows **`ChatView`** / **`.stretch`**, your Mac has an **old** `ChatView.swift`. Replace the whole file with the version from this repo (it only forwards to `ChatScreen`). Same for `VitalityAgeView.swift` → `VitalityAgeScreen`.
-
-After pulling or copying files: **Product → Clean Build Folder**, then **Cmd+B**.
+`RootView.swift` uses `ChatView()` and `VitalityAgeView()`.
 
 ## If build fails
 
-- **Signing:** pick a Team on the HealthTracker target; bundle ID `com.elyaskhoubach.wuhu`.
-- **Stale errors:** Clean Build Folder, quit Xcode, reopen `HealthTracker.xcodeproj`.
-- **Wrong copy of the project:** you must have `ChatScreen.swift` and **not** `ChatView.swift`. Compare with this repo or re-copy the whole `HealthTracker/` folder.
-- **Do not** use Run on a single `.swift` file — only **Cmd+R** on the **HealthTracker** scheme.
+- **Signing:** Team + `com.elyaskhoubach.wuhu` on the **Wuhu** target.
+- **Stale HealthTracker errors:** you opened the old project or an old folder — use `Wuhu.xcodeproj` and clean derived data (see MIGRATION.md).
+- **Cmd+R** on scheme **Wuhu** only — not Run on a single `.swift` file.

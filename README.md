@@ -1,4 +1,4 @@
-# HealthTracker
+# Wuhu (HealthTracker)
 
 A clean iOS SwiftUI dashboard for daily and weekly health stats, workouts, an interactive Body Map with healing tips for injuries, a wellness chatbot, and Vitality Age scoring.
 
@@ -38,17 +38,17 @@ This project is developed **locally** for now. GitHub/Origin remotes come later 
 
 ```bash
 cd /path/to/this/repo
-open HealthTracker.xcodeproj
+open Wuhu.xcodeproj
 ```
 
-Then scheme **HealthTracker** → iOS 18 simulator → **Cmd+R**. See [RUN.md](RUN.md) (entry point: `HealthTracker/App/HealthTrackerApp.swift`).
+Then scheme **Wuhu** → iOS 18 simulator → **Cmd+R**. See [RUN.md](RUN.md) and [MIGRATION.md](MIGRATION.md) (entry point: `Wuhu/App/WuhuApp.swift`).
 
 When you add GitHub later:
 
 ```bash
 git clone <GITHUB_REPO_URL>
 cd Wuhu
-open HealthTracker.xcodeproj
+open Wuhu.xcodeproj
 ```
 
 ### 3. Add your API key (optional)
@@ -60,11 +60,11 @@ Paste your key next to `LLM_API_KEY`, then save. Skip this to use the local fall
 
 ### 4. Open the project
 ```bash
-open HealthTracker.xcodeproj
+open Wuhu.xcodeproj
 ```
 
 ### 5. Configure signing (first time only)
-1. Click the project in the left sidebar, then the **HealthTracker** target.
+1. Click the project in the left sidebar, then the **Wuhu** target.
 2. Open **Signing & Capabilities**.
 3. Select your **Team** and keep **Automatically manage signing** on.
 4. Confirm the Bundle Identifier is `com.elyaskhoubach.wuhu` (unique so Apple can register it for your team). If Xcode still says the identifier is unavailable, change it to something only you own, for example `com.<yourname>.wuhu`, then press Enter and wait for signing to refresh.
@@ -85,7 +85,7 @@ open HealthTracker.xcodeproj
 
 ### 8. Run the tests
 ```bash
-xcodebuild test -scheme HealthTracker -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -scheme Wuhu -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 (Or press Cmd+U in Xcode. If that simulator name does not exist, run `xcrun simctl list devices available` and use one that does.)
 
@@ -108,7 +108,7 @@ If the LLM fails or AI is disabled, scores are **estimated locally**.
 ## Project structure
 
 ```
-HealthTracker/
+Wuhu/
 ├── App/                 # Entry, environment, settings
 ├── Core/
 │   ├── HealthKit/       # Provider protocol, live + mock
@@ -129,7 +129,7 @@ HealthTracker/
 ## Running tests
 
 ```bash
-xcodebuild test -scheme HealthTracker -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -scheme Wuhu -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
 Coverage includes Vitality Age boundaries, snapshot JSON, score decoding, workout de-duplication, Body Map load rules, and healing tip coverage for every body part.
@@ -149,7 +149,7 @@ Coverage includes Vitality Age boundaries, snapshot JSON, score decoding, workou
 | Empty dashboard | Enable Mock Data, or grant Health access on a device |
 | Bundle identifier / signing errors | Bundle ID must be unique. Default is `com.elyaskhoubach.wuhu`. Change it under Signing & Capabilities if Apple says it is unavailable, pick your Team, keep Automatic signing on. Clean build folder (Product → Clean Build Folder) and run again. |
 | Signing errors | Select your Team under Signing & Capabilities; ensure you are signed into Xcode with an Apple ID (Settings → Accounts) |
-| Stale compile errors after agent edits | Make sure Xcode opened **this** local folder (`open HealthTracker.xcodeproj` from the repo root). Remotes are optional until GitHub is wired up. |
+| Stale compile errors after agent edits | Open **`Wuhu.xcodeproj`** (not the removed HealthTracker project). See [MIGRATION.md](MIGRATION.md). |
 | Simulator name not found | `xcrun simctl list devices available` and update the destination |
 | AI scores missing | Optional — local fallback still works; check `Secrets.xcconfig` |
 | Body Map 3D blank | Use the 2D map toggle; procedural body is the default without `body.usdz` |
@@ -161,4 +161,4 @@ HealthTracker is a **wellness tool for motivation**. It is not a medical device 
 ## License and asset credits
 
 - App source: see repository license (or all rights reserved by the project author if none is set).
-- Procedural 3D body: original to this project. Optional USDZ instructions and license notes: [HealthTracker/Resources/Models/LICENSE.md](HealthTracker/Resources/Models/LICENSE.md).
+- Procedural 3D body: original to this project. Optional USDZ instructions and license notes: [Wuhu/Resources/Models/LICENSE.md](Wuhu/Resources/Models/LICENSE.md).

@@ -70,7 +70,7 @@ struct DashboardView: View {
                     }
                 }
             }
-            .navigationTitle("HealthTracker")
+            .navigationTitle("Wuhu")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {

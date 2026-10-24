@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import HealthTracker
+@testable import Wuhu
 
 struct ScoreResultDecodingTests {
     @Test func decodesValidFixture() throws {

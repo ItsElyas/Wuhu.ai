@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct HealthTrackerApp: App {
+struct WuhuApp: App {
     @State private var environment = AppEnvironment()
 
     var sharedModelContainer: ModelContainer = {

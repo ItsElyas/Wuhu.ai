@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		A10000000000000000000001 /* HealthTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HealthTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A10000000000000000000002 /* HealthTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HealthTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000001 /* Wuhu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wuhu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000002 /* WuhuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WuhuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000003 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Config/Base.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A20000000000000000000001 /* HealthTracker */ = {
+		A20000000000000000000001 /* Wuhu */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HealthTracker;
+			path = Wuhu;
 			sourceTree = "<group>";
 		};
-		A20000000000000000000002 /* HealthTrackerTests */ = {
+		A20000000000000000000002 /* WuhuTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HealthTrackerTests;
+			path = WuhuTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -47,8 +47,8 @@
 			isa = PBXGroup;
 			children = (
 				A10000000000000000000003 /* Base.xcconfig */,
-				A20000000000000000000001 /* HealthTracker */,
-				A20000000000000000000002 /* HealthTrackerTests */,
+				A20000000000000000000001 /* Wuhu */,
+				A20000000000000000000002 /* WuhuTests */,
 				A40000000000000000000002 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,8 +56,8 @@
 		A40000000000000000000002 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A10000000000000000000001 /* HealthTracker.app */,
-				A10000000000000000000002 /* HealthTrackerTests.xctest */,
+				A10000000000000000000001 /* Wuhu.app */,
+				A10000000000000000000002 /* WuhuTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -65,9 +65,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A50000000000000000000001 /* HealthTracker */ = {
+		A50000000000000000000001 /* Wuhu */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A70000000000000000000003 /* Build configuration list for PBXNativeTarget "HealthTracker" */;
+			buildConfigurationList = A70000000000000000000003 /* Build configuration list for PBXNativeTarget "Wuhu" */;
 			buildPhases = (
 				A60000000000000000000001 /* Sources */,
 				A30000000000000000000001 /* Frameworks */,
@@ -78,18 +78,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A20000000000000000000001 /* HealthTracker */,
+				A20000000000000000000001 /* Wuhu */,
 			);
-			name = HealthTracker;
+			name = Wuhu;
 			packageProductDependencies = (
 			);
-			productName = HealthTracker;
-			productReference = A10000000000000000000001 /* HealthTracker.app */;
+			productName = Wuhu;
+			productReference = A10000000000000000000001 /* Wuhu.app */;
 			productType = "com.apple.product-type.application";
 		};
-		A50000000000000000000002 /* HealthTrackerTests */ = {
+		A50000000000000000000002 /* WuhuTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A70000000000000000000004 /* Build configuration list for PBXNativeTarget "HealthTrackerTests" */;
+			buildConfigurationList = A70000000000000000000004 /* Build configuration list for PBXNativeTarget "WuhuTests" */;
 			buildPhases = (
 				A60000000000000000000003 /* Sources */,
 				A30000000000000000000002 /* Frameworks */,
@@ -100,13 +100,13 @@
 				A80000000000000000000001 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				A20000000000000000000002 /* HealthTrackerTests */,
+				A20000000000000000000002 /* WuhuTests */,
 			);
-			name = HealthTrackerTests;
+			name = WuhuTests;
 			packageProductDependencies = (
 			);
-			productName = HealthTrackerTests;
-			productReference = A10000000000000000000002 /* HealthTrackerTests.xctest */;
+			productName = WuhuTests;
+			productReference = A10000000000000000000002 /* WuhuTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -128,7 +128,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXProject "HealthTracker" */;
+			buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXProject "Wuhu" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -142,8 +142,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A50000000000000000000001 /* HealthTracker */,
-				A50000000000000000000002 /* HealthTrackerTests */,
+				A50000000000000000000001 /* Wuhu */,
+				A50000000000000000000002 /* WuhuTests */,
 			);
 		};
 /* End PBXProject section */
@@ -178,7 +178,7 @@
 /* Begin PBXTargetDependency section */
 		A80000000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = A50000000000000000000001 /* HealthTracker */;
+			target = A50000000000000000000001 /* Wuhu */;
 			targetProxy = A80000000000000000000002 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -189,7 +189,7 @@
 			containerPortal = A90000000000000000000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = A50000000000000000000001;
-			remoteInfo = HealthTracker;
+			remoteInfo = Wuhu;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -293,13 +293,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = HealthTracker/HealthTracker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Wuhu/Wuhu.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = HealthTracker;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "HealthTracker reads your steps, heart rate, sleep, calories, and workouts to show your dashboard and Vitality Age. Data stays on your device unless you opt in to AI scoring.";
+				INFOPLIST_KEY_CFBundleDisplayName = Wuhu;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wuhu reads your steps, heart rate, sleep, calories, and workouts to show your dashboard and Vitality Age. Data stays on your device unless you opt in to AI scoring.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -328,13 +328,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = HealthTracker/HealthTracker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Wuhu/Wuhu.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = HealthTracker;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "HealthTracker reads your steps, heart rate, sleep, calories, and workouts to show your dashboard and Vitality Age. Data stays on your device unless you opt in to AI scoring.";
+				INFOPLIST_KEY_CFBundleDisplayName = Wuhu;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wuhu reads your steps, heart rate, sleep, calories, and workouts to show your dashboard and Vitality Age. Data stays on your device unless you opt in to AI scoring.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -370,7 +370,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HealthTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HealthTracker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wuhu.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wuhu";
 			};
 			name = Debug;
 		};
@@ -387,14 +387,14 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HealthTracker.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HealthTracker";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Wuhu.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Wuhu";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A70000000000000000000001 /* Build configuration list for PBXProject "HealthTracker" */ = {
+		A70000000000000000000001 /* Build configuration list for PBXProject "Wuhu" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000001 /* Debug */,
@@ -403,7 +403,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A70000000000000000000003 /* Build configuration list for PBXNativeTarget "HealthTracker" */ = {
+		A70000000000000000000003 /* Build configuration list for PBXNativeTarget "Wuhu" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000003 /* Debug */,
@@ -412,7 +412,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A70000000000000000000004 /* Build configuration list for PBXNativeTarget "HealthTrackerTests" */ = {
+		A70000000000000000000004 /* Build configuration list for PBXNativeTarget "WuhuTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0000000000000000000005 /* Debug */,

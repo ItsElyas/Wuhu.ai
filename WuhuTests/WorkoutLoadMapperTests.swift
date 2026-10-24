@@ -1,5 +1,5 @@
 import Testing
-@testable import HealthTracker
+@testable import Wuhu
 
 struct WorkoutLoadMapperTests {
     @Test func runningMapsToLegs() {

@@ -1,5 +1,5 @@
 import Testing
-@testable import HealthTracker
+@testable import Wuhu
 
 struct WeeklyStatsTests {
     @Test func weekOverWeekPercent() {

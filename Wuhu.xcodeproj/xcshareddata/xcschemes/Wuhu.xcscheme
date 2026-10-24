@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A50000000000000000000001"
-               BuildableName = "HealthTracker.app"
-               BlueprintName = "HealthTracker"
-               ReferencedContainer = "container:HealthTracker.xcodeproj">
+               BuildableName = "Wuhu.app"
+               BlueprintName = "Wuhu"
+               ReferencedContainer = "container:Wuhu.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -34,9 +34,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A50000000000000000000002"
-               BuildableName = "HealthTrackerTests.xctest"
-               BlueprintName = "HealthTrackerTests"
-               ReferencedContainer = "container:HealthTracker.xcodeproj">
+               BuildableName = "WuhuTests.xctest"
+               BlueprintName = "WuhuTests"
+               ReferencedContainer = "container:Wuhu.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -56,9 +56,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A50000000000000000000001"
-            BuildableName = "HealthTracker.app"
-            BlueprintName = "HealthTracker"
-            ReferencedContainer = "container:HealthTracker.xcodeproj">
+            BuildableName = "Wuhu.app"
+            BlueprintName = "Wuhu"
+            ReferencedContainer = "container:Wuhu.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -79,9 +79,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A50000000000000000000001"
-            BuildableName = "HealthTracker.app"
-            BlueprintName = "HealthTracker"
-            ReferencedContainer = "container:HealthTracker.xcodeproj">
+            BuildableName = "Wuhu.app"
+            BlueprintName = "Wuhu"
+            ReferencedContainer = "container:Wuhu.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
