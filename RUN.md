@@ -35,10 +35,7 @@ These tabs were rebuilt under **new filenames** so Xcode stops compiling old bro
 | Chat | `ChatScreen` in `RootView` | `HealthTracker/Features/Chat/ChatScreen.swift` |
 | Vitality | `VitalityAgeScreen` in `RootView` | `HealthTracker/Features/Vitality/VitalityAgeScreen.swift` |
 
-**Remove or replace** if they still exist on your Mac (they cause the old errors):
-
-- `HealthTracker/Features/Chat/ChatView.swift` — deleted; `.stretch` alignment is invalid
-- `HealthTracker/Features/Vitality/VitalityAgeView.swift` — deleted; `delta` / `deltaLabel` scope errors
+If Xcode still shows **`ChatView`** / **`.stretch`**, your Mac has an **old** `ChatView.swift`. Replace the whole file with the version from this repo (it only forwards to `ChatScreen`). Same for `VitalityAgeView.swift` → `VitalityAgeScreen`.
 
 After pulling or copying files: **Product → Clean Build Folder**, then **Cmd+B**.
 
