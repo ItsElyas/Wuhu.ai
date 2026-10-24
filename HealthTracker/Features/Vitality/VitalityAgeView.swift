@@ -56,9 +56,16 @@ struct VitalityAgeView: View {
     }
 
     private var ageCard: some View {
-        let vitality = app.latestScores?.vitalityAge?.years ?? 0
-        let chrono = app.latestScores?.vitalityAge?.deltaVsChronological ?? 0
-        let chronoLabel = delta < 0
+        ageCardContent(
+            vitality: app.latestScores?.vitalityAge?.years ?? 0,
+            delta: app.latestScores?.vitalityAge?.deltaVsChronological ?? 0
+        )
+    }
+
+    /// Locals are parameters so SwiftUI's opaque `some View` result does not drop them from scope.
+    private func ageCardContent(vitality: Double, delta: Double) -> some View {
+        let younger = delta < 0
+        let deltaLabel = younger
             ? String(format: "%.1f years younger", abs(delta))
             : String(format: "%.1f years older", delta)
 
@@ -73,7 +80,7 @@ struct VitalityAgeView: View {
                 .font(AppTypography.body)
             Text(deltaLabel)
                 .font(AppTypography.headline)
-                .foregroundStyle(delta < 0 ? .green : .orange)
+                .foregroundStyle(younger ? Color.green : Color.orange)
         }
         .frame(maxWidth: .infinity)
         .padding(24)
@@ -91,13 +98,7 @@ struct VitalityAgeView: View {
             )
             scoreTile(
                 title: "Effort",
-                value: {
-                    if let score = app.latestScores?.effort?.score {
-                        let max = app.latestScores?.effort?.scaleMax ?? 21
-                        return String(format: "%.1f / %.0f", score, max)
-                    }
-                    return "—"
-                }(),
+                value: effortValueText,
                 detail: app.latestScores?.effort?.summary,
                 color: AppColors.effort
             )
@@ -108,6 +109,12 @@ struct VitalityAgeView: View {
                 color: AppColors.sleep
             )
         }
+    }
+
+    private var effortValueText: String {
+        guard let score = app.latestScores?.effort?.score else { return "—" }
+        let max = app.latestScores?.effort?.scaleMax ?? 21
+        return String(format: "%.1f / %.0f", score, max)
     }
 
     private func scoreTile(title: String, value: String, detail: String?, color: Color) -> some View {
