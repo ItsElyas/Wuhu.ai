@@ -7,7 +7,7 @@ LLM_MODEL = $(LLM_MODEL)
 
 // Unique reverse-DNS id so Automatic Signing can register an App ID on a free or paid team.
 // Change this if Xcode still says the identifier is unavailable.
-PRODUCT_BUNDLE_IDENTIFIER = com.elyaskhoubach.HealthTracker
+PRODUCT_BUNDLE_IDENTIFIER = com.elyaskhoubach.wuhu
 MARKETING_VERSION = 1.0
 CURRENT_PROJECT_VERSION = 1
 SWIFT_VERSION = 5.0
