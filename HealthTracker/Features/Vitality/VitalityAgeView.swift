@@ -7,8 +7,7 @@ struct VitalityAgeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    if app.latestScores?.insufficientData == true
-                        || app.latestScores?.vitalityAge?.years == nil {
+                    if shouldShowCollectingCard {
                         collectingCard
                     } else {
                         ageCard
@@ -19,26 +18,35 @@ struct VitalityAgeView: View {
 
                     if app.usedLocalFallback {
                         Text("Estimated locally")
-                            .font(AppTypography.caption)
+                            .font(.caption.weight(.medium))
                             .padding(.horizontal, 10)
                             .padding(.vertical, 4)
-                            .background(.orange.opacity(0.2), in: Capsule())
+                            .background(Color.orange.opacity(0.2), in: Capsule())
                             .accessibilityLabel("Scores estimated locally")
                     }
 
-                    Text(
-                        app.latestScores?.disclaimer
-                            ?? "Estimate for motivation only, not a medical measurement."
-                    )
-                    .font(AppTypography.caption)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                    Text(disclaimerText)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
                 .padding()
             }
             .navigationTitle("Vitality Age")
         }
+    }
+
+    private var shouldShowCollectingCard: Bool {
+        if app.latestScores?.insufficientData == true {
+            return true
+        }
+        return app.latestScores?.vitalityAge?.years == nil
+    }
+
+    private var disclaimerText: String {
+        app.latestScores?.disclaimer
+            ?? "Estimate for motivation only, not a medical measurement."
     }
 
     private var vitalityYears: Double {
@@ -51,9 +59,13 @@ struct VitalityAgeView: View {
 
     private var ageDeltaLabel: String {
         if ageDelta < 0 {
-            return String(format: "%.1f years younger", abs(ageDelta))
+            return String(format: "%.1f years younger", Swift.abs(ageDelta))
         }
         return String(format: "%.1f years older", ageDelta)
+    }
+
+    private var ageDeltaColor: Color {
+        ageDelta < 0 ? .green : .orange
     }
 
     private var daysWithData: Int {
@@ -61,44 +73,60 @@ struct VitalityAgeView: View {
     }
 
     private var effortValueText: String {
-        guard let score = app.latestScores?.effort?.score else { return "—" }
+        guard let score = app.latestScores?.effort?.score else {
+            return "-"
+        }
         let scaleMax = app.latestScores?.effort?.scaleMax ?? 21
         return String(format: "%.1f / %.0f", score, scaleMax)
+    }
+
+    private var readinessValueText: String {
+        guard let score = app.latestScores?.readiness?.score else {
+            return "-"
+        }
+        return "\(Int(score))"
+    }
+
+    private var sleepValueText: String {
+        guard let score = app.latestScores?.sleepScore?.score else {
+            return "-"
+        }
+        return "\(Int(score))"
     }
 
     private var collectingCard: some View {
         VStack(spacing: 8) {
             Text("Collecting data")
-                .font(AppTypography.title)
+                .font(.title2.weight(.semibold))
             Text("\(daysWithData)/\(VitalityConfig.minimumDaysOfData) days")
-                .font(AppTypography.metricValue)
+                .font(.system(.title, design: .rounded).weight(.bold))
                 .foregroundStyle(AppColors.vitality)
             Text("Keep syncing health data to unlock Vitality Age.")
-                .font(AppTypography.caption)
+                .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(24)
-        .background(.background.secondary, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 
     private var ageCard: some View {
         VStack(spacing: 8) {
             Text("Vitality Age")
-                .font(AppTypography.caption)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
             Text(String(format: "%.1f", vitalityYears))
                 .font(.system(size: 56, weight: .bold, design: .rounded))
                 .foregroundStyle(AppColors.vitality)
             Text("Chronological \(app.settings.chronologicalAge)")
-                .font(AppTypography.body)
+                .font(.body)
             Text(ageDeltaLabel)
-                .font(AppTypography.headline)
-                .foregroundStyle(ageDelta < 0 ? Color.green : Color.orange)
+                .font(.headline)
+                .foregroundStyle(ageDeltaColor)
         }
         .frame(maxWidth: .infinity)
         .padding(24)
-        .background(.background.secondary, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 
@@ -106,7 +134,7 @@ struct VitalityAgeView: View {
         VStack(spacing: 12) {
             scoreTile(
                 title: "Readiness",
-                value: app.latestScores?.readiness?.score.map { "\(Int($0))" } ?? "—",
+                value: readinessValueText,
                 detail: app.latestScores?.readiness?.summary,
                 color: AppColors.readiness
             )
@@ -118,7 +146,7 @@ struct VitalityAgeView: View {
             )
             scoreTile(
                 title: "Sleep Score",
-                value: app.latestScores?.sleepScore?.score.map { "\(Int($0))" } ?? "—",
+                value: sleepValueText,
                 detail: app.latestScores?.sleepScore?.summary,
                 color: AppColors.sleep
             )
@@ -128,19 +156,19 @@ struct VitalityAgeView: View {
     private func scoreTile(title: String, value: String, detail: String?, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(AppTypography.caption)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(color)
             Text(value)
-                .font(AppTypography.metricValue)
+                .font(.system(.title, design: .rounded).weight(.bold))
             if let detail {
                 Text(detail)
-                    .font(AppTypography.caption)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
-        .background(.background.secondary, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 
@@ -149,35 +177,36 @@ struct VitalityAgeView: View {
         if let drivers = app.latestScores?.vitalityAge?.drivers, !drivers.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 SectionHeader(title: "What helps or hurts", subtitle: "Top drivers of Vitality Age")
-                ForEach(drivers) { driver in
-                    HStack(alignment: .top) {
-                        Image(systemName: (driver.effectYears ?? 0) <= 0 ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
-                            .foregroundStyle((driver.effectYears ?? 0) <= 0 ? .green : .orange)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(driver.metric.replacingOccurrences(of: "_", with: " ").capitalized)
-                                .font(AppTypography.headline)
-                            if let note = driver.note {
-                                Text(note)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        Spacer()
-                        if let effect = driver.effectYears {
-                            Text(String(format: "%+.1f y", effect))
-                                .font(AppTypography.caption)
-                        }
-                    }
-                    .padding(12)
-                    .background(.background.secondary, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .accessibilityElement(children: .combine)
+                ForEach(Array(drivers.enumerated()), id: \.offset) { _, driver in
+                    driverRow(driver)
                 }
             }
         }
     }
-}
 
-#Preview {
-    VitalityAgeView()
-        .environment(AppEnvironment())
+    private func driverRow(_ driver: ScoreDriver) -> some View {
+        let effect = driver.effectYears ?? 0
+        let isHelpful = effect <= 0
+        return HStack(alignment: .top) {
+            Image(systemName: isHelpful ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                .foregroundStyle(isHelpful ? Color.green : Color.orange)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(driver.metric.replacingOccurrences(of: "_", with: " ").capitalized)
+                    .font(.headline)
+                if let note = driver.note {
+                    Text(note)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            if let effectYears = driver.effectYears {
+                Text(String(format: "%+.1f y", effectYears))
+                    .font(.caption)
+            }
+        }
+        .padding(12)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
 }
