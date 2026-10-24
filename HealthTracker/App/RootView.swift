@@ -12,9 +12,9 @@ struct RootView: View {
                 .tabItem { Label("Dashboard", systemImage: "heart.text.square") }
             WorkoutListView()
                 .tabItem { Label("Workouts", systemImage: "figure.run") }
-            ChatScreen()
+            ChatView()
                 .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
-            VitalityAgeScreen()
+            VitalityAgeView()
                 .tabItem { Label("Vitality", systemImage: "sparkles") }
         }
         .task {
