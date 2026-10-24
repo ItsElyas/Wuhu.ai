@@ -34,6 +34,14 @@ See [REQUIREMENTS.md](REQUIREMENTS.md) for versions. Short list: macOS + Xcode w
 
 ### 2. Get the code
 ```bash
+# Preferred (Origin)
+origin repo clone elyas-khoubach/Wuhu
+cd Wuhu
+```
+
+Or see [SYNC.md](SYNC.md) for pull/visibility details and troubleshooting when Xcode shows stale errors.
+
+```bash
 git clone <REPO_URL>
 cd HealthTracker
 ```
