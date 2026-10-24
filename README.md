@@ -51,10 +51,12 @@ open HealthTracker.xcodeproj
 ```
 
 ### 5. Configure signing (first time only)
-1. Click the project in the left sidebar, then the HealthTracker target.
-2. Open Signing & Capabilities.
-3. Select your Team and keep "Automatically manage signing" on.
-4. Confirm the HealthKit capability is listed. Add it with "+ Capability" if not.
+1. Click the project in the left sidebar, then the **HealthTracker** target.
+2. Open **Signing & Capabilities**.
+3. Select your **Team** and keep **Automatically manage signing** on.
+4. Confirm the Bundle Identifier is `com.elyaskhoubach.HealthTracker` (unique so Apple can register it for your team). If Xcode still says the identifier is unavailable, change it to something only you own, for example `com.<yourname>.HealthTracker`, then press Enter and wait for signing to refresh.
+5. Confirm the **HealthKit** capability is listed. Add it with "+ Capability" if not.
+6. If the red signing error persists: Xcode → Settings → Accounts → add your Apple ID → Download Manual Profiles, then re-select the Team on the target.
 
 ### 6. Run on the simulator
 1. Pick an iPhone simulator (iOS 18+) in the top toolbar.
@@ -132,7 +134,8 @@ Coverage includes Vitality Age boundaries, snapshot JSON, score decoding, workou
 | Issue | What to try |
 |---|---|
 | Empty dashboard | Enable Mock Data, or grant Health access on a device |
-| Signing errors | Select your Team under Signing & Capabilities |
+| Bundle identifier / signing errors | Bundle ID must be unique. Default is `com.elyaskhoubach.HealthTracker`. Change it under Signing & Capabilities if Apple says it is unavailable, pick your Team, keep Automatic signing on. Clean build folder (Product → Clean Build Folder) and run again. |
+| Signing errors | Select your Team under Signing & Capabilities; ensure you are signed into Xcode with an Apple ID (Settings → Accounts) |
 | Simulator name not found | `xcrun simctl list devices available` and update the destination |
 | AI scores missing | Optional — local fallback still works; check `Secrets.xcconfig` |
 | Body Map 3D blank | Use the 2D map toggle; procedural body is the default without `body.usdz` |
