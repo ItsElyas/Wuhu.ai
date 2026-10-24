@@ -106,8 +106,13 @@ struct PartDetailSheet: View {
     }
 
     private var healingSection: some View {
-        let recommendation = HealingRecommendations.recommendation(for: part, severity: severity)
-        return Section {
+        healingSectionContent(
+            HealingRecommendations.recommendation(for: part, severity: severity)
+        )
+    }
+
+    private func healingSectionContent(_ recommendation: HealingRecommendation) -> some View {
+        Section {
             VStack(alignment: .leading, spacing: 10) {
                 Label("How to heal", systemImage: "cross.case.fill")
                     .font(AppTypography.headline)

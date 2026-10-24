@@ -51,6 +51,10 @@ struct WorkoutListView: View {
     }
 
     private var weeklySummary: some View {
+        weeklySummaryContent(workouts: Array(workouts))
+    }
+
+    private func weeklySummaryContent(workouts: [WorkoutRecord]) -> some View {
         let weekStart = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
         let week = workouts.filter { $0.startDate >= weekStart }
         let minutes = week.reduce(0.0) { $0 + $1.durationMinutes }
