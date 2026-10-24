@@ -39,8 +39,11 @@ struct VitalityAgeView: View {
     }
 
     private var collectingCard: some View {
-        let days = app.lastSnapshot?.dataQuality.daysWithData ?? 0
-        return VStack(spacing: 8) {
+        collectingCardContent(days: app.lastSnapshot?.dataQuality.daysWithData ?? 0)
+    }
+
+    private func collectingCardContent(days: Int) -> some View {
+        VStack(spacing: 8) {
             Text("Collecting data")
                 .font(AppTypography.title)
             Text("\(days)/\(VitalityConfig.minimumDaysOfData) days")
