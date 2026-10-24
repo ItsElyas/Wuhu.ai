@@ -7,7 +7,8 @@ struct VitalityAgeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    if app.latestScores?.insufficientData == true || app.latestScores?.vitalityAge?.years == nil {
+                    if app.latestScores?.insufficientData == true
+                        || app.latestScores?.vitalityAge?.years == nil {
                         collectingCard
                     } else {
                         ageCard
@@ -25,12 +26,14 @@ struct VitalityAgeView: View {
                             .accessibilityLabel("Scores estimated locally")
                     }
 
-                    Text(app.latestScores?.disclaimer
-                         ?? "Estimate for motivation only, not a medical measurement.")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    Text(
+                        app.latestScores?.disclaimer
+                            ?? "Estimate for motivation only, not a medical measurement."
+                    )
+                    .font(AppTypography.caption)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
                 }
                 .padding()
             }
@@ -38,15 +41,36 @@ struct VitalityAgeView: View {
         }
     }
 
-    private var collectingCard: some View {
-        collectingCardContent(days: app.lastSnapshot?.dataQuality.daysWithData ?? 0)
+    private var vitalityYears: Double {
+        app.latestScores?.vitalityAge?.years ?? 0
     }
 
-    private func collectingCardContent(days: Int) -> some View {
+    private var ageDelta: Double {
+        app.latestScores?.vitalityAge?.deltaVsChronological ?? 0
+    }
+
+    private var ageDeltaLabel: String {
+        if ageDelta < 0 {
+            return String(format: "%.1f years younger", abs(ageDelta))
+        }
+        return String(format: "%.1f years older", ageDelta)
+    }
+
+    private var daysWithData: Int {
+        app.lastSnapshot?.dataQuality.daysWithData ?? 0
+    }
+
+    private var effortValueText: String {
+        guard let score = app.latestScores?.effort?.score else { return "—" }
+        let scaleMax = app.latestScores?.effort?.scaleMax ?? 21
+        return String(format: "%.1f / %.0f", score, scaleMax)
+    }
+
+    private var collectingCard: some View {
         VStack(spacing: 8) {
             Text("Collecting data")
                 .font(AppTypography.title)
-            Text("\(days)/\(VitalityConfig.minimumDaysOfData) days")
+            Text("\(daysWithData)/\(VitalityConfig.minimumDaysOfData) days")
                 .font(AppTypography.metricValue)
                 .foregroundStyle(AppColors.vitality)
             Text("Keep syncing health data to unlock Vitality Age.")
@@ -59,31 +83,18 @@ struct VitalityAgeView: View {
     }
 
     private var ageCard: some View {
-        ageCardContent(
-            vitality: app.latestScores?.vitalityAge?.years ?? 0,
-            delta: app.latestScores?.vitalityAge?.deltaVsChronological ?? 0
-        )
-    }
-
-    /// Locals are parameters so SwiftUI's opaque `some View` result does not drop them from scope.
-    private func ageCardContent(vitality: Double, delta: Double) -> some View {
-        let younger = delta < 0
-        let deltaLabel = younger
-            ? String(format: "%.1f years younger", abs(delta))
-            : String(format: "%.1f years older", delta)
-
-        return VStack(spacing: 8) {
+        VStack(spacing: 8) {
             Text("Vitality Age")
                 .font(AppTypography.caption)
                 .foregroundStyle(.secondary)
-            Text(String(format: "%.1f", vitality))
+            Text(String(format: "%.1f", vitalityYears))
                 .font(.system(size: 56, weight: .bold, design: .rounded))
                 .foregroundStyle(AppColors.vitality)
             Text("Chronological \(app.settings.chronologicalAge)")
                 .font(AppTypography.body)
-            Text(deltaLabel)
+            Text(ageDeltaLabel)
                 .font(AppTypography.headline)
-                .foregroundStyle(younger ? Color.green : Color.orange)
+                .foregroundStyle(ageDelta < 0 ? Color.green : Color.orange)
         }
         .frame(maxWidth: .infinity)
         .padding(24)
@@ -112,12 +123,6 @@ struct VitalityAgeView: View {
                 color: AppColors.sleep
             )
         }
-    }
-
-    private var effortValueText: String {
-        guard let score = app.latestScores?.effort?.score else { return "—" }
-        let max = app.latestScores?.effort?.scaleMax ?? 21
-        return String(format: "%.1f / %.0f", score, max)
     }
 
     private func scoreTile(title: String, value: String, detail: String?, color: Color) -> some View {
