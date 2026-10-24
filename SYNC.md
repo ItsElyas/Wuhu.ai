@@ -5,8 +5,10 @@ Cloud Agent edits live on Origin and are pushed to `main`. Xcode only sees them 
 ## Browse / visibility
 
 - Repo page: https://cursor.com/codebase/elyas-khoubach/Wuhu  
-- Visibility is **Private** by default. To change it: open that page → **Settings** → Visibility (Public / Internal / Private).  
-  The cloud agent token cannot change visibility for you.
+- **Wuhu is a personal-account repo.** On Origin, personal repos are **always Private**. There is no Visibility dropdown in Settings for personal repos — that control only exists on **team-owned** repos (Internal vs Private). Origin also has no “Public” visibility option.
+- To share a personal repo: open the repo → **Settings** → **Collaborators** → invite people.
+- To get team-wide “Internal” visibility, create/move the repo under a **team codebase** instead (team admin), then set Internal in that repo’s Settings → Access / General.
+- This cloud agent cannot change visibility or collaborators for you (token is not scoped for those settings on Wuhu).
 
 ## First-time clone
 
