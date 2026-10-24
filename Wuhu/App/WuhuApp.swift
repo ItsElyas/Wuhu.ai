@@ -4,30 +4,15 @@ import SwiftData
 @main
 struct WuhuApp: App {
     @State private var environment = AppEnvironment()
-
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            WorkoutRecord.self,
-            ChatMessage.self,
-            BodyPartStatusRecord.self,
-            CachedScoreResult.self,
-        ])
-        do {
-            return try ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: false)])
-        } catch {
-            do {
-                return try ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
-            } catch {
-                preconditionFailure("Could not create ModelContainer: \(error)")
-            }
-        }
-    }()
+    private let containers = ModelContainerStore.shared
 
     var body: some Scene {
         WindowGroup {
+            // Re-creating RootView on toggle re-runs bootstrap against the new store.
             RootView()
+                .id(environment.settings.demoMode)
                 .environment(environment)
-                .modelContainer(sharedModelContainer)
+                .modelContainer(containers.container(demoMode: environment.settings.demoMode))
         }
     }
 }

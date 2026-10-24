@@ -6,6 +6,8 @@ struct UserProfile: Equatable, Sendable {
     var heightCm: Double?
     var weightKg: Double?
     var dateOfBirth: Date?
+    /// First word is used in the Home greeting. Nil falls back to "there".
+    var displayName: String? = nil
 }
 
 /// Abstraction so views never import HealthKit directly.
@@ -25,6 +27,7 @@ struct ImportedWorkout: Equatable, Sendable, Identifiable {
     var calories: Double?
     var averageHeartRate: Double?
     var maxHeartRate: Double?
+    var distanceMiles: Double? = nil
 }
 
 enum HealthDataError: LocalizedError {

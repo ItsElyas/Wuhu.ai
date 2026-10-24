@@ -4,7 +4,6 @@ import SwiftUI
 /// User preferences persisted in UserDefaults / AppStorage.
 @Observable
 final class AppSettings {
-    static let useMockDataKey = "useMockData"
     static let aiConsentKey = "aiScoringConsent"
     static let aiConsentShownKey = "aiConsentShown"
     static let chronologicalAgeKey = "chronologicalAge"
@@ -12,10 +11,8 @@ final class AppSettings {
     static let heightCmKey = "heightCm"
     static let weightKgKey = "weightKg"
     static let stepGoalKey = "stepGoal"
-
-    var useMockData: Bool {
-        didSet { UserDefaults.standard.set(useMockData, forKey: Self.useMockDataKey) }
-    }
+    static let chatWellnessCheckInKey = "chatWellnessCheckInEnabled"
+    static let demoModeKey = "demoModeEnabled"
 
     var aiScoringConsent: Bool {
         didSet { UserDefaults.standard.set(aiScoringConsent, forKey: Self.aiConsentKey) }
@@ -45,22 +42,24 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(stepGoal, forKey: Self.stepGoalKey) }
     }
 
+    /// Proactive "how are you feeling?" opener when chat history is empty.
+    var chatWellnessCheckInEnabled: Bool {
+        didSet { UserDefaults.standard.set(chatWellnessCheckInEnabled, forKey: Self.chatWellnessCheckInKey) }
+    }
+
+    /// Demo mode: sample Health data and a separate, pre-seeded local store. Real data is untouched.
+    var demoMode: Bool {
+        didSet { UserDefaults.standard.set(demoMode, forKey: Self.demoModeKey) }
+    }
+
     /// Last JSON payload sent (debug builds / View data sent screen).
     var lastSnapshotJSON: String = ""
     var lastScoreJSON: String = ""
 
     init() {
         let defaults = UserDefaults.standard
-        let launchMock = ProcessInfo.processInfo.arguments.contains("-useMockData")
-        if defaults.object(forKey: Self.useMockDataKey) == nil {
-            // Default on so the app is usable without HealthKit or an API key.
-            self.useMockData = true
-        } else {
-            self.useMockData = defaults.bool(forKey: Self.useMockDataKey) || launchMock
-        }
-        if launchMock {
-            self.useMockData = true
-        }
+        defaults.removeObject(forKey: "useMockData")
+        self.demoMode = defaults.bool(forKey: Self.demoModeKey)
         self.aiScoringConsent = defaults.bool(forKey: Self.aiConsentKey)
         self.aiConsentShown = defaults.bool(forKey: Self.aiConsentShownKey)
         let storedAge = defaults.integer(forKey: Self.chronologicalAgeKey)
@@ -72,6 +71,11 @@ final class AppSettings {
         self.weightKg = w > 0 ? w : 76
         let goal = defaults.integer(forKey: Self.stepGoalKey)
         self.stepGoal = goal > 0 ? goal : 10_000
+        if defaults.object(forKey: Self.chatWellnessCheckInKey) == nil {
+            self.chatWellnessCheckInEnabled = true
+        } else {
+            self.chatWellnessCheckInEnabled = defaults.bool(forKey: Self.chatWellnessCheckInKey)
+        }
     }
 
     var profileOverride: UserProfile {

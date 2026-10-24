@@ -8,6 +8,7 @@ final class AppEnvironment {
     var healthProvider: any HealthDataProviding
     var scoringService: any ScoringService
     var chatService: any ChatService
+    var chatOrchestrator: ChatOrchestrator
 
     var dailyHistory: [DailyStats] = []
     var today: DailyStats?
@@ -18,29 +19,108 @@ final class AppEnvironment {
     var isLoading = false
     var errorMessage: String?
     var lastSnapshot: HealthSnapshot?
+    /// Workouts from the last 30 days. Weekly running uses the last 7.
+    var recentWorkouts: [ImportedWorkout] = []
+    /// Today's intake, cached until the next reload or pull to refresh.
+    var nutrition: NutritionSummary?
+    var nutritionMessage: String = "Not connected"
+    /// Bumps after each successful reload so Home can refresh when mock toggles without `today` changing.
+    var reloadGeneration: Int = 0
+    var lastReloadFinishedAt: Date?
+    /// Derived wear levels for Home mini figure and Body Map daily view (refreshed on reload).
+    var wearTearResult: WearTearResult?
+    let profilePreferences = ProfilePreferences()
+    var playerProfileStore = PlayerProfileStore()
+    /// Full-screen workout logger visibility. Owned at the root so the Home bubble,
+    /// Workout Hub, and Live Activity taps all open the same logger.
+    var isWorkoutLoggerPresented = false
+    /// WSL estimated from available data when the profile has no explicit evaluation (see `refreshWSL`).
+    var autoWSL: WSLAutoEvaluator.Result?
+    let workoutDatabaseEngine = WorkoutDatabaseEngine()
+
+    var homeDataSourceLabel: HomeDataSourceLabel {
+        if isLoading { return .loading }
+        if settings.demoMode { return .demo }
+        if errorMessage != nil { return .error }
+        if let today, HealthAccessCopy.hasAnyMetric(on: today) { return .health }
+        if dailyHistory.contains(where: HealthAccessCopy.hasAnyMetric(on:)) { return .health }
+        return .healthEmpty
+    }
+
+    /// Shown when live mode loaded but today has no readable samples.
+    var healthAccessHint: String? {
+        guard !isLoading else { return nil }
+        if errorMessage != nil { return nil }
+        guard homeDataSourceLabel == .healthEmpty else { return nil }
+        return HealthAccessCopy.openHealthSettings
+    }
 
     private let snapshotBuilder = HealthSnapshotBuilder()
     private let localCalculator = VitalityAgeCalculator()
+    private let myNetDiary: any MyNetDiaryProviding = MyNetDiaryAPIService()
 
     init(settings: AppSettings = AppSettings()) {
         self.settings = settings
-        self.healthProvider = settings.useMockData
-            ? MockHealthDataProvider()
-            : HealthKitManager()
-        self.scoringService = ScoringServiceFactory.make(
-            useMock: settings.useMockData,
-            aiEnabled: settings.aiScoringConsent
-        )
+        self.healthProvider = Self.makeHealthProvider(settings: settings)
+        self.scoringService = ScoringServiceFactory.make(aiEnabled: settings.aiScoringConsent)
         self.chatService = Self.makeChat(settings: settings)
+        self.chatOrchestrator = ChatOrchestrator.make(settings: settings)
+        syncWeeklyPerformanceFromProfile()
+    }
+
+    func syncWeeklyPerformanceFromProfile() {
+        profilePreferences.weeklyPerformanceMode = playerProfileStore.weeklyPerformanceMode
+    }
+
+    /// Demo mode reads sample data; otherwise Apple Health.
+    static func makeHealthProvider(settings: AppSettings) -> any HealthDataProviding {
+        settings.demoMode ? MockHealthDataProvider() : HealthKitManager()
+    }
+
+    /// Clears everything loaded from the previous data source (used when demo mode toggles).
+    func resetLoadedState() {
+        dailyHistory = []
+        today = nil
+        weekly = nil
+        profile = UserProfile()
+        latestScores = nil
+        usedLocalFallback = false
+        errorMessage = nil
+        lastSnapshot = nil
+        recentWorkouts = []
+        nutrition = nil
+        nutritionMessage = "Not connected"
+        wearTearResult = nil
+        autoWSL = nil
+        isWorkoutLoggerPresented = false
+        reloadGeneration += 1
     }
 
     func refreshProvider() {
-        healthProvider = settings.useMockData ? MockHealthDataProvider() : HealthKitManager()
-        scoringService = ScoringServiceFactory.make(
-            useMock: settings.useMockData,
-            aiEnabled: settings.aiScoringConsent
-        )
+        healthProvider = Self.makeHealthProvider(settings: settings)
+        scoringService = ScoringServiceFactory.make(aiEnabled: settings.aiScoringConsent)
         chatService = Self.makeChat(settings: settings)
+        chatOrchestrator = ChatOrchestrator.make(settings: settings)
+    }
+
+    /// Settings "Test connection" — minimal Gemini ping, updates `GeminiChatDiagnostics`.
+    func probeGeminiChatConnection() async {
+        let result = await GeminiConfiguration.probeConnection()
+        switch result {
+        case .success:
+            GeminiChatDiagnostics.recordSuccess()
+        case let .failure(error):
+            GeminiChatDiagnostics.recordFailure(error.errorDescription ?? "Gemini probe failed.")
+        }
+    }
+
+    func reloadReportingErrors(modelContext: ModelContext) async {
+        do {
+            try await reloadAll(modelContext: modelContext)
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     func bootstrap(modelContext: ModelContext) async {
@@ -48,24 +128,24 @@ final class AppEnvironment {
         errorMessage = nil
         defer { isLoading = false }
         do {
-            if !settings.useMockData {
-                try await healthProvider.requestAuthorization()
-            } else {
-                try await healthProvider.requestAuthorization()
-            }
             try await reloadAll(modelContext: modelContext)
         } catch {
             errorMessage = error.localizedDescription
-            // Fall back to mock so the UI still works.
-            if !settings.useMockData {
-                settings.useMockData = true
-                refreshProvider()
-                try? await reloadAll(modelContext: modelContext)
-            }
         }
     }
 
     func reloadAll(modelContext: ModelContext) async throws {
+        do {
+            try await healthProvider.requestAuthorization()
+        } catch {
+            dailyHistory = []
+            today = nil
+            weekly = nil
+            recentWorkouts = []
+            nutrition = nil
+            nutritionMessage = "Health access is unavailable."
+            throw error
+        }
         var history = try await healthProvider.fetchDailyHistory(days: 30)
         var fetchedProfile = try await healthProvider.fetchProfile()
         if fetchedProfile.ageYears == nil {
@@ -82,11 +162,13 @@ final class AppEnvironment {
         }
         profile = fetchedProfile
         dailyHistory = history
-        today = history.last
+        let calendar = Calendar.current
+        today = history.last(where: { calendar.isDateInToday($0.date) }) ?? history.last
         weekly = Self.buildWeekly(from: history)
 
         let start = Calendar.current.date(byAdding: .day, value: -30, to: .now) ?? .now
-        let imported = try await healthProvider.fetchWorkouts(from: start, to: .now)
+        let imported = (try? await healthProvider.fetchWorkouts(from: start, to: .now)) ?? []
+        recentWorkouts = imported
         try Self.mergeImportedWorkouts(imported, into: modelContext)
 
         var bodyRecords = try modelContext.fetch(FetchDescriptor<BodyPartStatusRecord>())
@@ -108,7 +190,97 @@ final class AppEnvironment {
             settings.lastSnapshotJSON = json
         }
 
+        let workoutRecords = try modelContext.fetch(FetchDescriptor<WorkoutRecord>())
+        refreshWear(bodyRecords: bodyRecords, workoutRecords: workoutRecords)
+        refreshWSL(modelContext: modelContext)
+
         try await refreshScores(snapshot: snapshot, modelContext: modelContext)
+        await refreshNutrition()
+        reloadGeneration += 1
+        lastReloadFinishedAt = .now
+    }
+
+    /// Recomputes wear from HealthKit imports, Workout Hub logs, body status, and last night's sleep.
+    func refreshWear(bodyRecords: [BodyPartStatusRecord], workoutRecords: [WorkoutRecord]) {
+        let events = Self.wearWorkoutEvents(imported: recentWorkouts, logged: workoutRecords)
+        wearTearResult = WearTearEngine.compute(
+            WearTearInput(
+                bodyRecords: bodyRecords,
+                workouts: events,
+                sleepHoursLastNight: today?.sleep?.totalHours
+            )
+        )
+    }
+
+    func refreshWear(modelContext: ModelContext, bodyRecords: [BodyPartStatusRecord]) {
+        let workouts = (try? modelContext.fetch(FetchDescriptor<WorkoutRecord>())) ?? []
+        refreshWear(bodyRecords: bodyRecords, workoutRecords: workouts)
+    }
+
+    static func wearWorkoutEvents(imported: [ImportedWorkout], logged: [WorkoutRecord]) -> [WearWorkoutEvent] {
+        var events: [WearWorkoutEvent] = imported.map { item in
+            WearWorkoutEvent(
+                startDate: item.startDate,
+                type: item.type,
+                durationMinutes: item.durationMinutes,
+                averageHeartRate: item.averageHeartRate,
+                musclesWorked: WorkoutLoadMapper.parts(forWorkoutType: item.type)
+            )
+        }
+        for record in logged {
+            let candidate = WearWorkoutEvent(
+                startDate: record.startDate,
+                type: record.type,
+                durationMinutes: record.durationMinutes,
+                averageHeartRate: record.averageHeartRate,
+                musclesWorked: record.musclesWorked
+            )
+            let duplicate = events.contains { Self.isDuplicateWearEvent($0, candidate) }
+            if duplicate { continue }
+            events.append(candidate)
+        }
+        return events
+    }
+
+    private static func isDuplicateWearEvent(_ a: WearWorkoutEvent, _ b: WearWorkoutEvent, toleranceSeconds: TimeInterval = 60) -> Bool {
+        a.type.localizedCaseInsensitiveCompare(b.type) == .orderedSame
+            && abs(a.startDate.timeIntervalSince(b.startDate)) <= toleranceSeconds
+    }
+
+    /// Prefers the MyNetDiary diary call when a key is set, then Apple Health dietary energy.
+    func refreshNutrition() async {
+        if !settings.demoMode, MyNetDiaryConfiguration.isConfigured {
+            do {
+                nutrition = try await myNetDiary.fetchSummary(days: 7)
+                nutritionMessage = "Connected"
+                return
+            } catch {
+                nutritionMessage = "MyNetDiary request failed. Showing Apple Health intake when it exists."
+            }
+        }
+        let todayIn = today?.intakeCalories.map { Int($0.rounded()) }
+        let weekValues = dailyHistory.suffix(7).compactMap(\.intakeCalories)
+        let weekIn = weekValues.isEmpty ? nil : Int(weekValues.reduce(0, +).rounded())
+        if todayIn != nil || weekIn != nil {
+            nutrition = NutritionSummary(
+                todayCaloriesIn: todayIn,
+                weekCaloriesIn: weekIn,
+                proteinGrams: today?.proteinGrams.map { Int($0.rounded()) },
+                carbGrams: today?.carbGrams.map { Int($0.rounded()) },
+                fatGrams: today?.fatGrams.map { Int($0.rounded()) },
+                source: .appleHealth
+            )
+            if settings.demoMode {
+                nutritionMessage = "Demo data"
+            } else if !MyNetDiaryConfiguration.isConfigured {
+                nutritionMessage = "Intake from Apple Health. Sync MyNetDiary to Health, or set MYNETDIARY_API_KEY."
+            }
+            return
+        }
+        nutrition = nil
+        if !MyNetDiaryConfiguration.isConfigured {
+            nutritionMessage = "Not connected. Sync MyNetDiary to Apple Health, or set MYNETDIARY_API_KEY."
+        }
     }
 
     func refreshScores(snapshot: HealthSnapshot, modelContext: ModelContext) async throws {
@@ -225,7 +397,7 @@ final class AppEnvironment {
     }
 
     private static func makeChat(settings: AppSettings) -> any ChatService {
-        if settings.useMockData || !settings.aiScoringConsent {
+        if !settings.aiScoringConsent {
             return MockChatService()
         }
         let key = Bundle.main.object(forInfoDictionaryKey: "LLM_API_KEY") as? String ?? ""

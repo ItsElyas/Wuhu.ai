@@ -5,6 +5,7 @@ import UIKit
 /// RealityKit body built from named primitive entities (or an optional body.usdz).
 struct BodyMap3DView: View {
     var statusForPart: (BodyPart) -> (BodyStatus, Double)
+    var wearLevelForPart: ((BodyPart) -> WearLevel)?
     var onSelect: (BodyPart) -> Void
 
     @State private var yaw: Float = 0
@@ -79,7 +80,19 @@ struct BodyMap3DView: View {
         for part in BodyPart.allCases {
             guard let entity = root.findEntity(named: part.rawValue) else { continue }
             let status = statusForPart(part)
-            let color = uiColor(for: status.0, intensity: status.1)
+            let color: UIColor
+            if status.0 == .injured {
+                color = uiWearColor(.severe)
+            } else if let wearLevelForPart {
+                let level = wearLevelForPart(part)
+                if level != .none {
+                    color = uiWearColor(level)
+                } else {
+                    color = uiColor(for: status.0, intensity: status.1)
+                }
+            } else {
+                color = uiColor(for: status.0, intensity: status.1)
+            }
             if var model = entity.components[ModelComponent.self] {
                 model.materials = [SimpleMaterial(color: color, isMetallic: false)]
                 entity.components.set(model)
@@ -92,6 +105,19 @@ struct BodyMap3DView: View {
             guard let entity = root.findEntity(named: part.rawValue) else { continue }
             entity.components.set(InputTargetComponent())
             entity.generateCollisionShapes(recursive: false)
+        }
+    }
+
+    private func uiWearColor(_ level: WearLevel) -> UIColor {
+        switch level {
+        case .none:
+            return UIColor(red: 0.76, green: 0.60, blue: 0.48, alpha: 1)
+        case .slight:
+            return UIColor(red: 0.93, green: 0.82, blue: 0.38, alpha: 0.92)
+        case .high:
+            return UIColor(red: 0.87, green: 0.54, blue: 0.23, alpha: 0.92)
+        case .severe:
+            return UIColor(red: 0.66, green: 0.18, blue: 0.15, alpha: 0.92)
         }
     }
 

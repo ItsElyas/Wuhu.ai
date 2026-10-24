@@ -18,3 +18,7 @@ Requirements:
 - Record the source URL and license text in this file when you add an asset.
 
 Do **not** use ripped or unlicensed game models.
+
+## Home mini figure
+
+`MiniBodyFigure` is original SwiftUI geometry (rounded rectangles), not a traced illustration. **TODO:** replace with final vector art in the asset catalog. Record the source here when that art is added.

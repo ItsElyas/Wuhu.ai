@@ -11,6 +11,13 @@ struct ChatView: View {
         @Bindable var viewModel = viewModel
         NavigationStack {
             VStack(spacing: 0) {
+                Text(app.chatOrchestrator.backendStatus)
+                    .font(.caption2)
+                    .foregroundStyle(app.chatOrchestrator.usesRemoteLLM ? Color.secondary : Color.orange)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top, 4)
+                    .accessibilityLabel(app.chatOrchestrator.backendStatus)
                 messageList
                 if let error = viewModel.errorMessage {
                     Text(error)
@@ -21,14 +28,21 @@ struct ChatView: View {
                 composer(viewModel: viewModel)
             }
             .navigationTitle("Chat")
+            .task {
+                await viewModel.prepareSessionIfNeeded(
+                    orchestrator: app.chatOrchestrator,
+                    app: app,
+                    modelContext: modelContext
+                )
+            }
         }
     }
 
     private var messageList: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
-                if messages.isEmpty {
-                    Text("Ask about stats, Vitality Age, sleep, or an injured body part. Wellness only — not medical advice.")
+                if messages.isEmpty, app.chatOrchestrator.phase == .idle {
+                    Text("Wellness chat only — not medical advice. Say if a body part hurts or feels better to update your Body Map.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding()
@@ -36,11 +50,12 @@ struct ChatView: View {
                 ForEach(messages, id: \.id) { message in
                     messageBubble(message)
                 }
-                if viewModel.isTyping {
-                    HStack {
+                if let phase = app.chatOrchestrator.phase.statusText {
+                    HStack(spacing: 8) {
                         ProgressView()
-                        Text("Typing...")
+                        Text(phase)
                             .font(.caption)
+                            .foregroundStyle(.secondary)
                         Spacer()
                     }
                     .padding(.horizontal)
@@ -59,9 +74,8 @@ struct ChatView: View {
             Button {
                 Task {
                     await viewModel.send(
-                        using: app.chatService,
-                        snapshot: app.lastSnapshot,
-                        scores: app.latestScores,
+                        orchestrator: app.chatOrchestrator,
+                        app: app,
                         modelContext: modelContext
                     )
                 }
@@ -69,7 +83,10 @@ struct ChatView: View {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.title2)
             }
-            .disabled(viewModel.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || viewModel.isTyping)
+            .disabled(
+                viewModel.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    || app.chatOrchestrator.phase != .idle
+            )
         }
         .padding()
     }

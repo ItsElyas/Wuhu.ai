@@ -30,6 +30,14 @@ enum WorkoutLoadMapper {
         "pull-ups": [.upperBack, .leftBicep, .rightBicep, .leftForearm, .rightForearm],
         "squats": [.leftQuad, .rightQuad, .glutes, .leftHamstring, .rightHamstring],
         "deadlift": [.lowerBack, .glutes, .leftHamstring, .rightHamstring],
+        "bench press": [.chest, .leftShoulder, .rightShoulder, .leftTricep, .rightTricep],
+        "bench": [.chest, .leftShoulder, .rightShoulder, .leftTricep, .rightTricep],
+        "overhead press": [.leftShoulder, .rightShoulder, .leftTricep, .rightTricep, .abs],
+        "shoulder press": [.leftShoulder, .rightShoulder, .leftTricep, .rightTricep, .abs],
+        "lat pulldown": [.upperBack, .leftBicep, .rightBicep],
+        "leg press": [.leftQuad, .rightQuad, .glutes],
+        "leg curl": [.leftHamstring, .rightHamstring],
+        "leg extension": [.leftQuad, .rightQuad],
         "other": [.chest, .leftQuad, .rightQuad],
     ]
 

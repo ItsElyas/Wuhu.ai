@@ -2,12 +2,17 @@ import SwiftUI
 import SwiftData
 
 struct BodyMapView: View {
+    @Environment(AppEnvironment.self) private var app
     @Environment(\.modelContext) private var modelContext
     @Query private var bodyRecords: [BodyPartStatusRecord]
     @Query(sort: \WorkoutRecord.startDate, order: .reverse) private var workouts: [WorkoutRecord]
     @State private var viewModel = BodyMapViewModel()
     @State private var prefer3D = false
     @State private var detailPart: BodyPart?
+
+    private var wearByPart: [BodyPart: WearLevel] {
+        app.wearTearResult?.wear ?? [:]
+    }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -24,14 +29,16 @@ struct BodyMapView: View {
             ZStack {
                 if prefer3D {
                     BodyMap3DView(
-                        statusForPart: { viewModel.effectiveStatus(for: $0, in: Array(bodyRecords)) },
+                        statusForPart: { viewModel.effectiveStatus(for: $0, in: Array(bodyRecords), wear: wearByPart) },
+                        wearLevelForPart: viewModel.range == .daily ? { viewModel.wearLevel(for: $0, wear: wearByPart) } : nil,
                         onSelect: { detailPart = $0 }
                     )
                     .frame(maxHeight: 420)
                 } else {
                     BodyMap2DView(
                         showFront: viewModel.showFront,
-                        statusForPart: { viewModel.effectiveStatus(for: $0, in: Array(bodyRecords)) },
+                        statusForPart: { viewModel.effectiveStatus(for: $0, in: Array(bodyRecords), wear: wearByPart) },
+                        wearLevelForPart: viewModel.range == .daily ? { viewModel.wearLevel(for: $0, wear: wearByPart) } : nil,
                         weeklyLoadForPart: { viewModel.weeklyLoad(for: $0, workouts: Array(workouts)) },
                         heatMode: viewModel.range == .weekly,
                         onSelect: { detailPart = $0 }
@@ -71,6 +78,15 @@ struct BodyMapView: View {
                 .padding(.horizontal)
         }
         .navigationTitle("Body Map")
+        .onAppear {
+            app.refreshWear(modelContext: modelContext, bodyRecords: Array(bodyRecords))
+        }
+        .onChange(of: bodyRecords.count) { _, _ in
+            app.refreshWear(modelContext: modelContext, bodyRecords: Array(bodyRecords))
+        }
+        .onChange(of: workouts.count) { _, _ in
+            app.refreshWear(modelContext: modelContext, bodyRecords: Array(bodyRecords))
+        }
         .sheet(item: $detailPart) { part in
             PartDetailSheet(
                 part: part,
@@ -89,6 +105,7 @@ struct BodyMapView: View {
                         records: &records,
                         context: modelContext
                     )
+                    app.refreshWear(modelContext: modelContext, bodyRecords: records)
                 }
             )
         }
@@ -96,7 +113,7 @@ struct BodyMapView: View {
             NavigationStack {
                 List {
                     ForEach(BodyPart.allCases) { part in
-                        let status = viewModel.effectiveStatus(for: part, in: Array(bodyRecords))
+                        let status = viewModel.effectiveStatus(for: part, in: Array(bodyRecords), wear: wearByPart)
                         Button {
                             viewModel.showList = false
                             detailPart = part

@@ -8,8 +8,7 @@ struct WorkoutListView: View {
     @State private var showAdd = false
 
     var body: some View {
-        NavigationStack {
-            List {
+        List {
                 Section {
                     weeklySummary
                 }
@@ -47,7 +46,6 @@ struct WorkoutListView: View {
             .sheet(isPresented: $showAdd) {
                 WorkoutLogView()
             }
-        }
     }
 
     private var weeklySummary: some View {
@@ -109,7 +107,9 @@ struct WorkoutRow: View {
 }
 
 #Preview {
-    WorkoutListView()
-        .environment(AppEnvironment())
-        .modelContainer(for: [WorkoutRecord.self, BodyPartStatusRecord.self, ChatMessage.self, CachedScoreResult.self], inMemory: true)
+    NavigationStack {
+        WorkoutListView()
+    }
+    .environment(AppEnvironment())
+    .modelContainer(for: [WorkoutRecord.self, BodyPartStatusRecord.self, ChatMessage.self, CachedScoreResult.self], inMemory: true)
 }

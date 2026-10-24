@@ -27,6 +27,10 @@ final class WorkoutRecord {
     var sourceRaw: String
     var musclesWorkedRaw: [String]
     var createdAt: Date
+    /// Logged distance (Workout Hub runs). `nil` for imports and lifts.
+    var distanceMiles: Double?
+    /// Workout Hub session this record was written from, if any.
+    var hubSessionID: UUID?
 
     init(
         id: UUID = UUID(),
@@ -40,7 +44,9 @@ final class WorkoutRecord {
         notes: String? = nil,
         source: WorkoutSource = .manual,
         musclesWorked: [BodyPart] = [],
-        createdAt: Date = .now
+        createdAt: Date = .now,
+        distanceMiles: Double? = nil,
+        hubSessionID: UUID? = nil
     ) {
         self.id = id
         self.type = type
@@ -54,6 +60,8 @@ final class WorkoutRecord {
         self.sourceRaw = source.rawValue
         self.musclesWorkedRaw = musclesWorked.map(\.rawValue)
         self.createdAt = createdAt
+        self.distanceMiles = distanceMiles
+        self.hubSessionID = hubSessionID
     }
 
     var workoutIntensity: WorkoutIntensity {

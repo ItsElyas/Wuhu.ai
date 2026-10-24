@@ -6,21 +6,90 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		AB0000000000000000000001 /* WuhuWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* WuhuWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A80000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A90000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000001;
+			remoteInfo = Wuhu;
+		};
+		A80000000000000000000003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A90000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000003;
+			remoteInfo = WuhuWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AC0000000000000000000001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AB0000000000000000000001 /* WuhuWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		A10000000000000000000001 /* Wuhu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Wuhu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000002 /* WuhuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WuhuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10000000000000000000003 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Base.xcconfig; path = Config/Base.xcconfig; sourceTree = "<group>"; };
+		A10000000000000000000004 /* WuhuWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WuhuWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A2E000000000000000000001 /* Exceptions for "Wuhu" folder in "Wuhu" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A50000000000000000000001 /* Wuhu */;
+		};
+		A2E000000000000000000002 /* Exceptions for "WuhuWidgets" folder in "WuhuWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = A50000000000000000000003 /* WuhuWidgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A20000000000000000000001 /* Wuhu */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A2E000000000000000000001 /* Exceptions for "Wuhu" folder in "Wuhu" target */,
+			);
 			path = Wuhu;
 			sourceTree = "<group>";
 		};
 		A20000000000000000000002 /* WuhuTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = WuhuTests;
+			sourceTree = "<group>";
+		};
+		A20000000000000000000003 /* WuhuWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A2E000000000000000000002 /* Exceptions for "WuhuWidgets" folder in "WuhuWidgets" target */,
+			);
+			path = WuhuWidgets;
+			sourceTree = "<group>";
+		};
+		A20000000000000000000004 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -40,6 +109,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A30000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -49,6 +125,8 @@
 				A10000000000000000000003 /* Base.xcconfig */,
 				A20000000000000000000001 /* Wuhu */,
 				A20000000000000000000002 /* WuhuTests */,
+				A20000000000000000000003 /* WuhuWidgets */,
+				A20000000000000000000004 /* Shared */,
 				A40000000000000000000002 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -58,6 +136,7 @@
 			children = (
 				A10000000000000000000001 /* Wuhu.app */,
 				A10000000000000000000002 /* WuhuTests.xctest */,
+				A10000000000000000000004 /* WuhuWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,13 +151,16 @@
 				A60000000000000000000001 /* Sources */,
 				A30000000000000000000001 /* Frameworks */,
 				A60000000000000000000002 /* Resources */,
+				AC0000000000000000000001 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				A80000000000000000000004 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				A20000000000000000000001 /* Wuhu */,
+				A20000000000000000000004 /* Shared */,
 			);
 			name = Wuhu;
 			packageProductDependencies = (
@@ -109,6 +191,29 @@
 			productReference = A10000000000000000000002 /* WuhuTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A50000000000000000000003 /* WuhuWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000000000000000000005 /* Build configuration list for PBXNativeTarget "WuhuWidgets" */;
+			buildPhases = (
+				A60000000000000000000004 /* Sources */,
+				A30000000000000000000003 /* Frameworks */,
+				A60000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A20000000000000000000003 /* WuhuWidgets */,
+				A20000000000000000000004 /* Shared */,
+			);
+			name = WuhuWidgets;
+			packageProductDependencies = (
+			);
+			productName = WuhuWidgets;
+			productReference = A10000000000000000000004 /* WuhuWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -125,6 +230,9 @@
 					A50000000000000000000002 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = A50000000000000000000001;
+					};
+					A50000000000000000000003 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -144,12 +252,20 @@
 			targets = (
 				A50000000000000000000001 /* Wuhu */,
 				A50000000000000000000002 /* WuhuTests */,
+				A50000000000000000000003 /* WuhuWidgets */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A60000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A60000000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -173,6 +289,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A60000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -181,17 +304,12 @@
 			target = A50000000000000000000001 /* Wuhu */;
 			targetProxy = A80000000000000000000002 /* PBXContainerItemProxy */;
 		};
-/* End PBXTargetDependency section */
-
-/* Begin PBXContainerItemProxy section */
-		A80000000000000000000002 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A90000000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A50000000000000000000001;
-			remoteInfo = Wuhu;
+		A80000000000000000000004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A50000000000000000000003 /* WuhuWidgets */;
+			targetProxy = A80000000000000000000003 /* PBXContainerItemProxy */;
 		};
-/* End PBXContainerItemProxy section */
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		AA0000000000000000000001 /* Debug */ = {
@@ -296,10 +414,25 @@
 				CODE_SIGN_ENTITLEMENTS = Wuhu/Wuhu.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = D2GNJNWU55;
 				ENABLE_PREVIEWS = YES;
+				GEMINI_API_KEY = "$(GEMINI_API_KEY)";
+				GEMINI_BASE_URL = "$(GEMINI_BASE_URL)";
+				GEMINI_MODEL = "$(GEMINI_MODEL)";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wuhu/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wuhu;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wuhu reads your steps, heart rate, sleep, calories, and workouts to show your dashboard and Vitality Age. Data stays on your device unless you opt in to AI scoring.";
+				INFOPLIST_KEY_GEMINI_API_KEY = "$(GEMINI_API_KEY)";
+				INFOPLIST_KEY_GEMINI_BASE_URL = "$(GEMINI_BASE_URL)";
+				INFOPLIST_KEY_GEMINI_MODEL = "$(GEMINI_MODEL)";
+				INFOPLIST_KEY_LLM_API_KEY = "$(LLM_API_KEY)";
+				INFOPLIST_KEY_LLM_BASE_URL = "$(LLM_BASE_URL)";
+				INFOPLIST_KEY_LLM_MODEL = "$(LLM_MODEL)";
+				INFOPLIST_KEY_MYNETDIARY_API_KEY = "$(MYNETDIARY_API_KEY)";
+				INFOPLIST_KEY_MYNETDIARY_BASE_URL = "$(MYNETDIARY_BASE_URL)";
+				INFOPLIST_KEY_MYNETDIARY_USER_ID = "$(MYNETDIARY_USER_ID)";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wuhu reads steps, heart rate, HRV, sleep, active and resting calories, dietary energy and macros, walking and running distance, and workouts to show your dashboard. Data stays on your device unless you opt in to AI scoring.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -308,17 +441,17 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LLM_API_KEY = "$(LLM_API_KEY)";
+				LLM_BASE_URL = "$(LLM_BASE_URL)";
+				LLM_MODEL = "$(LLM_MODEL)";
+				MYNETDIARY_API_KEY = "$(MYNETDIARY_API_KEY)";
+				MYNETDIARY_BASE_URL = "$(MYNETDIARY_BASE_URL)";
+				MYNETDIARY_USER_ID = "$(MYNETDIARY_USER_ID)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.elyaskhoubach.wuhu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				LLM_API_KEY = "$(LLM_API_KEY)";
-				LLM_BASE_URL = "$(LLM_BASE_URL)";
-				LLM_MODEL = "$(LLM_MODEL)";
-				INFOPLIST_KEY_LLM_API_KEY = "$(LLM_API_KEY)";
-				INFOPLIST_KEY_LLM_BASE_URL = "$(LLM_BASE_URL)";
-				INFOPLIST_KEY_LLM_MODEL = "$(LLM_MODEL)";
 			};
 			name = Debug;
 		};
@@ -331,10 +464,25 @@
 				CODE_SIGN_ENTITLEMENTS = Wuhu/Wuhu.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = D2GNJNWU55;
 				ENABLE_PREVIEWS = YES;
+				GEMINI_API_KEY = "$(GEMINI_API_KEY)";
+				GEMINI_BASE_URL = "$(GEMINI_BASE_URL)";
+				GEMINI_MODEL = "$(GEMINI_MODEL)";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Wuhu/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Wuhu;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wuhu reads your steps, heart rate, sleep, calories, and workouts to show your dashboard and Vitality Age. Data stays on your device unless you opt in to AI scoring.";
+				INFOPLIST_KEY_GEMINI_API_KEY = "$(GEMINI_API_KEY)";
+				INFOPLIST_KEY_GEMINI_BASE_URL = "$(GEMINI_BASE_URL)";
+				INFOPLIST_KEY_GEMINI_MODEL = "$(GEMINI_MODEL)";
+				INFOPLIST_KEY_LLM_API_KEY = "$(LLM_API_KEY)";
+				INFOPLIST_KEY_LLM_BASE_URL = "$(LLM_BASE_URL)";
+				INFOPLIST_KEY_LLM_MODEL = "$(LLM_MODEL)";
+				INFOPLIST_KEY_MYNETDIARY_API_KEY = "$(MYNETDIARY_API_KEY)";
+				INFOPLIST_KEY_MYNETDIARY_BASE_URL = "$(MYNETDIARY_BASE_URL)";
+				INFOPLIST_KEY_MYNETDIARY_USER_ID = "$(MYNETDIARY_USER_ID)";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Wuhu reads steps, heart rate, HRV, sleep, active and resting calories, dietary energy and macros, walking and running distance, and workouts to show your dashboard. Data stays on your device unless you opt in to AI scoring.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -343,17 +491,17 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LLM_API_KEY = "$(LLM_API_KEY)";
+				LLM_BASE_URL = "$(LLM_BASE_URL)";
+				LLM_MODEL = "$(LLM_MODEL)";
+				MYNETDIARY_API_KEY = "$(MYNETDIARY_API_KEY)";
+				MYNETDIARY_BASE_URL = "$(MYNETDIARY_BASE_URL)";
+				MYNETDIARY_USER_ID = "$(MYNETDIARY_USER_ID)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.elyaskhoubach.wuhu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				LLM_API_KEY = "$(LLM_API_KEY)";
-				LLM_BASE_URL = "$(LLM_BASE_URL)";
-				LLM_MODEL = "$(LLM_MODEL)";
-				INFOPLIST_KEY_LLM_API_KEY = "$(LLM_API_KEY)";
-				INFOPLIST_KEY_LLM_BASE_URL = "$(LLM_BASE_URL)";
-				INFOPLIST_KEY_LLM_MODEL = "$(LLM_MODEL)";
 			};
 			name = Release;
 		};
@@ -391,6 +539,52 @@
 			};
 			name = Release;
 		};
+		AA0000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A10000000000000000000003 /* Base.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D2GNJNWU55;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WuhuWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Wuhu;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.elyaskhoubach.wuhu.WuhuWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A10000000000000000000003 /* Base.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = D2GNJNWU55;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WuhuWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Wuhu;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.elyaskhoubach.wuhu.WuhuWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -417,6 +611,15 @@
 			buildConfigurations = (
 				AA0000000000000000000005 /* Debug */,
 				AA0000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A70000000000000000000005 /* Build configuration list for PBXNativeTarget "WuhuWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000007 /* Debug */,
+				AA0000000000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -147,10 +147,17 @@ struct LLMScoringService: ScoringService {
     }
 }
 
+/// Forces `AppEnvironment.refreshScores` to use the on-device Vitality Age calculator.
+private struct LocalFallbackScoringService: ScoringService {
+    func score(snapshot: HealthSnapshot) async throws -> ScoreResult {
+        throw ScoringError.missingAPIKey
+    }
+}
+
 enum ScoringServiceFactory {
-    static func make(useMock: Bool, aiEnabled: Bool) -> any ScoringService {
-        if useMock || !aiEnabled {
-            return MockScoringService()
+    static func make(aiEnabled: Bool) -> any ScoringService {
+        guard aiEnabled else {
+            return LocalFallbackScoringService()
         }
         let key = Bundle.main.object(forInfoDictionaryKey: "LLM_API_KEY") as? String ?? ""
         let base = Bundle.main.object(forInfoDictionaryKey: "LLM_BASE_URL") as? String
@@ -160,7 +167,7 @@ enum ScoringServiceFactory {
             .replacingOccurrences(of: "\\/", with: "/")
             .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
         guard let url = URL(string: cleanedBase), !key.isEmpty, key != "your_api_key_here" else {
-            return MockScoringService()
+            return LocalFallbackScoringService()
         }
         return LLMScoringService(apiKey: key, baseURL: url, model: model)
     }

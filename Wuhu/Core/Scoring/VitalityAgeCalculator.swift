@@ -130,6 +130,7 @@ struct VitalityAgeCalculator: Sendable {
 
     func scoreResult(from input: Input) -> ScoreResult {
         let output = calculate(input)
+        let ready = readiness(from: input, scores: output.metricScores)
         var result = ScoreResult(
             schemaVersion: 1,
             vitalityAge: VitalityAgeScore(
@@ -138,12 +139,14 @@ struct VitalityAgeCalculator: Sendable {
                 confidence: output.insufficientData ? "low" : "medium",
                 drivers: output.drivers
             ),
-            readiness: readiness(from: input, scores: output.metricScores),
+            readiness: ready,
             effort: effort(from: input),
             sleepScore: sleepScore(from: input, scores: output.metricScores),
             method: "Local VitalityAgeCalculator using weighted age-adjusted metric scores.",
             insufficientData: output.insufficientData,
-            disclaimer: "Estimate for motivation only, not medical advice."
+            disclaimer: "Estimate for motivation only, not medical advice.",
+            egoScore: output.insufficientData ? nil : EgoScoreValue(score: ready.score, summary: ready.summary),
+            dailyRecommendation: nil
         )
         result.clamp()
         return result

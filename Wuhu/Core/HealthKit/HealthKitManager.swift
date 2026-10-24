@@ -19,6 +19,11 @@ final class HealthKitManager: HealthDataProviding, @unchecked Sendable {
         if let sex = HKObjectType.characteristicType(forIdentifier: .biologicalSex) { types.insert(sex) }
         if let height = HKObjectType.quantityType(forIdentifier: .height) { types.insert(height) }
         if let weight = HKObjectType.quantityType(forIdentifier: .bodyMass) { types.insert(weight) }
+        if let intake = HKQuantityType.quantityType(forIdentifier: .dietaryEnergyConsumed) { types.insert(intake) }
+        if let protein = HKQuantityType.quantityType(forIdentifier: .dietaryProtein) { types.insert(protein) }
+        if let carbs = HKQuantityType.quantityType(forIdentifier: .dietaryCarbohydrates) { types.insert(carbs) }
+        if let fat = HKQuantityType.quantityType(forIdentifier: .dietaryFatTotal) { types.insert(fat) }
+        if let distance = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) { types.insert(distance) }
         return types
     }
 
@@ -50,16 +55,28 @@ final class HealthKitManager: HealthDataProviding, @unchecked Sendable {
         for offset in 0..<days {
             guard let day = calendar.date(byAdding: .day, value: offset, to: start) else { continue }
             let next = calendar.date(byAdding: .day, value: 1, to: day) ?? day
-            let steps = try await sumQuantity(.stepCount, unit: .count(), from: day, to: next)
-            let active = try await sumQuantity(.activeEnergyBurned, unit: .kilocalorie(), from: day, to: next)
-            let basal = try await sumQuantity(.basalEnergyBurned, unit: .kilocalorie(), from: day, to: next)
-            let rhr = try await averageQuantity(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()), from: day, to: next)
-            let hrv = try await averageQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli), from: day, to: next)
-            let sleep = try await fetchSleep(from: day, to: next)
-            let workouts = try await fetchWorkouts(from: day, to: next)
+            let steps = await quiet { try await self.sumQuantity(.stepCount, unit: .count(), from: day, to: next) }
+            let active = await quiet { try await self.sumQuantity(.activeEnergyBurned, unit: .kilocalorie(), from: day, to: next) }
+            let basal = await quiet { try await self.sumQuantity(.basalEnergyBurned, unit: .kilocalorie(), from: day, to: next) }
+            let intake = await quiet { try await self.sumQuantity(.dietaryEnergyConsumed, unit: .kilocalorie(), from: day, to: next) }
+            let protein = await quiet { try await self.sumQuantity(.dietaryProtein, unit: .gram(), from: day, to: next) }
+            let carbs = await quiet { try await self.sumQuantity(.dietaryCarbohydrates, unit: .gram(), from: day, to: next) }
+            let fat = await quiet { try await self.sumQuantity(.dietaryFatTotal, unit: .gram(), from: day, to: next) }
+            let distance = await quiet { try await self.sumQuantity(.distanceWalkingRunning, unit: .mile(), from: day, to: next) }
+            let rhr = await quiet { try await self.averageQuantity(.restingHeartRate, unit: HKUnit.count().unitDivided(by: .minute()), from: day, to: next) }
+            let hrv = await quiet { try await self.averageQuantity(.heartRateVariabilitySDNN, unit: .secondUnit(with: .milli), from: day, to: next) }
+            let sleep = await quietOptional {
+                if calendar.isDateInToday(day) {
+                    let windowStart = calendar.date(byAdding: .hour, value: -18, to: day) ?? day
+                    let windowEnd = calendar.date(byAdding: .hour, value: 12, to: day) ?? next
+                    return try await self.fetchSleep(from: windowStart, to: windowEnd)
+                }
+                return try await self.fetchSleep(from: day, to: next)
+            }
+            let workouts = (try? await fetchWorkouts(from: day, to: next)) ?? []
             let workoutMinutes = workouts.reduce(0.0) { $0 + $1.durationMinutes }
             let latestHR: Double? = calendar.isDateInToday(day)
-                ? try await latestQuantity(.heartRate, unit: HKUnit.count().unitDivided(by: .minute()), from: day, to: next)
+                ? await quiet { try await self.latestQuantity(.heartRate, unit: HKUnit.count().unitDivided(by: .minute()), from: day, to: next) }
                 : nil
 
             results.append(
@@ -72,7 +89,12 @@ final class HealthKitManager: HealthDataProviding, @unchecked Sendable {
                     latestHeartRate: latestHR.map { $0.rounded() },
                     hrvSDNN: hrv.map { ($0 * 10).rounded() / 10 },
                     sleep: sleep,
-                    workoutMinutes: workoutMinutes > 0 ? workoutMinutes : nil
+                    workoutMinutes: workoutMinutes > 0 ? workoutMinutes : nil,
+                    intakeCalories: intake,
+                    proteinGrams: protein,
+                    carbGrams: carbs,
+                    fatGrams: fat,
+                    distanceMiles: distance
                 )
             )
         }
@@ -97,15 +119,19 @@ final class HealthKitManager: HealthDataProviding, @unchecked Sendable {
             store.execute(query)
         }
 
+        let heartUnit = HKUnit.count().unitDivided(by: .minute())
+        let heartType = HKQuantityType.quantityType(forIdentifier: .heartRate)
         return samples.map { workout in
-            ImportedWorkout(
+            let stats = heartType.flatMap { workout.statistics(for: $0) }
+            return ImportedWorkout(
                 id: workout.uuid,
                 type: workout.workoutActivityType.name,
                 startDate: workout.startDate,
                 durationMinutes: workout.duration / 60,
                 calories: workout.totalEnergyBurned?.doubleValue(for: .kilocalorie()),
-                averageHeartRate: nil,
-                maxHeartRate: nil
+                averageHeartRate: stats?.averageQuantity()?.doubleValue(for: heartUnit),
+                maxHeartRate: stats?.maximumQuantity()?.doubleValue(for: heartUnit),
+                distanceMiles: workout.totalDistance?.doubleValue(for: .mile())
             )
         }
     }
@@ -132,16 +158,35 @@ final class HealthKitManager: HealthDataProviding, @unchecked Sendable {
         } catch {
             // Optional.
         }
-        if let heightType = HKQuantityType.quantityType(forIdentifier: .height) {
-            profile.heightCm = try await latestQuantitySample(heightType)?.doubleValue(for: .meterUnit(with: .centi))
+        if let heightType = HKQuantityType.quantityType(forIdentifier: .height),
+           let quantity = try? await latestQuantitySample(heightType) {
+            profile.heightCm = quantity.doubleValue(for: .meterUnit(with: .centi))
         }
-        if let massType = HKQuantityType.quantityType(forIdentifier: .bodyMass) {
-            profile.weightKg = try await latestQuantitySample(massType)?.doubleValue(for: .gramUnit(with: .kilo))
+        if let massType = HKQuantityType.quantityType(forIdentifier: .bodyMass),
+           let quantity = try? await latestQuantitySample(massType) {
+            profile.weightKg = quantity.doubleValue(for: .gramUnit(with: .kilo))
         }
         return profile
     }
 
     // MARK: - Queries
+
+    /// A denied or missing type becomes nil so the rest of the day can still render.
+    private func quiet(_ body: () async throws -> Double?) async -> Double? {
+        do {
+            return try await body()
+        } catch {
+            return nil
+        }
+    }
+
+    private func quietOptional<T>(_ body: () async throws -> T?) async -> T? {
+        do {
+            return try await body()
+        } catch {
+            return nil
+        }
+    }
 
     private func sumQuantity(
         _ id: HKQuantityTypeIdentifier,

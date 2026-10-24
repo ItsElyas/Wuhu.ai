@@ -4,6 +4,12 @@
 LLM_API_KEY = $(LLM_API_KEY)
 LLM_BASE_URL = $(LLM_BASE_URL)
 LLM_MODEL = $(LLM_MODEL)
+GEMINI_API_KEY = $(GEMINI_API_KEY)
+GEMINI_BASE_URL = $(GEMINI_BASE_URL)
+GEMINI_MODEL = $(GEMINI_MODEL)
+MYNETDIARY_API_KEY = $(MYNETDIARY_API_KEY)
+MYNETDIARY_BASE_URL = $(MYNETDIARY_BASE_URL)
+MYNETDIARY_USER_ID = $(MYNETDIARY_USER_ID)
 
 // Unique reverse-DNS id so Automatic Signing can register an App ID on a free or paid team.
 // Change this if Xcode still says the identifier is unavailable.

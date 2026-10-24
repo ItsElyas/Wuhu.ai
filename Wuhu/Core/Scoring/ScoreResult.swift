@@ -9,6 +9,8 @@ struct ScoreResult: Codable, Equatable, Sendable {
     var method: String?
     var insufficientData: Bool
     var disclaimer: String?
+    var egoScore: EgoScoreValue? = nil
+    var dailyRecommendation: DailyRecommendationValue? = nil
 
     enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
@@ -19,6 +21,8 @@ struct ScoreResult: Codable, Equatable, Sendable {
         case method
         case insufficientData = "insufficient_data"
         case disclaimer
+        case egoScore = "ego_score"
+        case dailyRecommendation = "daily_recommendation"
     }
 
     /// Clamp scores to safe ranges after decode.
@@ -41,6 +45,18 @@ struct ScoreResult: Codable, Equatable, Sendable {
             e.scaleMax = maxScale
             effort = e
         }
+        if var ego = egoScore, let score = ego.score {
+            ego.score = min(100, max(0, score))
+            egoScore = ego
+        }
+        if let recommendation = dailyRecommendation, recommendation.validated() == nil {
+            dailyRecommendation = nil
+        }
+    }
+
+    /// A recommendation whose split and targets are inside the allowed ranges.
+    func validatedDailyPlan() -> (Split, DailyRecommendation)? {
+        dailyRecommendation?.validated()
     }
 }
 
@@ -86,5 +102,43 @@ struct EffortScore: Codable, Equatable, Sendable {
         case score
         case scaleMax = "scale_max"
         case summary
+    }
+}
+
+struct EgoScoreValue: Codable, Equatable, Sendable {
+    var score: Double?
+    var summary: String?
+}
+
+struct DailyRecommendationValue: Codable, Equatable, Sendable {
+    var split: String?
+    var focus: String?
+    var sleepHours: Double?
+    var workoutMinutes: Int?
+    var calories: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case split
+        case focus
+        case sleepHours = "sleep_hours"
+        case workoutMinutes = "workout_minutes"
+        case calories
+    }
+
+    func validated() -> (Split, DailyRecommendation)? {
+        guard let splitRaw = split, let split = Split(rawValue: splitRaw) else { return nil }
+        guard let focus, !focus.isEmpty else { return nil }
+        guard let sleepHours, (5...11).contains(sleepHours) else { return nil }
+        guard let workoutMinutes, (0...180).contains(workoutMinutes) else { return nil }
+        guard let calories, (1200...5000).contains(calories) else { return nil }
+        return (
+            split,
+            DailyRecommendation(
+                focus: focus,
+                sleepHours: sleepHours,
+                workoutMinutes: workoutMinutes,
+                calories: calories
+            )
+        )
     }
 }

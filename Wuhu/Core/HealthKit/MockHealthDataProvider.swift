@@ -1,9 +1,10 @@
 import Foundation
 
-/// Realistic sample data for previews, simulator, and `-useMockData`.
+/// Sample Health data used by demo mode (Settings → Demo mode), SwiftUI previews, and tests.
+/// Deterministic per day so the demo looks the same every time.
 struct MockHealthDataProvider: HealthDataProviding {
     func requestAuthorization() async throws {
-        // Always succeeds in mock mode.
+        // Always succeeds in demo mode.
     }
 
     func fetchDailyStats(for date: Date) async throws -> DailyStats {
@@ -24,18 +25,26 @@ struct MockHealthDataProvider: HealthDataProviding {
         }
     }
 
+    /// Health-app style workouts (runs include distance so pace and weekly running fill in).
     func fetchWorkouts(from start: Date, to end: Date) async throws -> [ImportedWorkout] {
         let calendar = Calendar.current
-        let samples: [(Int, String, Double, Double, Double)] = [
-            (1, "running", 35, 380, 152),
-            (3, "strength", 45, 220, 128),
-            (5, "cycling", 40, 310, 140),
-            (8, "yoga", 30, 90, 95),
-            (12, "swimming", 25, 200, 135),
+        // (days ago, hour, type, minutes, kcal, avg HR, miles)
+        let samples: [(Int, Int, String, Double, Double, Double, Double?)] = [
+            (0, 7, "running", 26.5, 330, 154, 3.2),
+            (2, 18, "running", 34, 410, 149, 4.0),
+            (4, 7, "running", 41.5, 520, 156, 5.1),
+            (6, 17, "cycling", 40, 310, 140, nil),
+            (7, 8, "running", 30, 360, 151, 3.6),
+            (9, 7, "running", 58, 690, 147, 6.8),
+            (11, 18, "yoga", 30, 90, 95, nil),
+            (13, 7, "running", 28, 340, 153, 3.4),
+            (16, 7, "running", 45, 540, 150, 5.4),
+            (20, 18, "swimming", 25, 200, 135, nil),
         ]
-        return samples.compactMap { dayOffset, type, minutes, kcal, hr in
-            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: .now),
-                  date >= start, date <= end else { return nil }
+        return samples.compactMap { daysAgo, hour, type, minutes, kcal, hr, miles in
+            guard let day = calendar.date(byAdding: .day, value: -daysAgo, to: calendar.startOfDay(for: .now)),
+                  let date = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: day),
+                  date >= start, date <= end, date <= .now else { return nil }
             return ImportedWorkout(
                 id: UUID(),
                 type: type,
@@ -43,7 +52,8 @@ struct MockHealthDataProvider: HealthDataProviding {
                 durationMinutes: minutes,
                 calories: kcal,
                 averageHeartRate: hr,
-                maxHeartRate: hr + 20
+                maxHeartRate: hr + 20,
+                distanceMiles: miles
             )
         }
     }
@@ -54,7 +64,8 @@ struct MockHealthDataProvider: HealthDataProviding {
             biologicalSex: "male",
             heightCm: 178,
             weightKg: 76,
-            dateOfBirth: Calendar.current.date(byAdding: .year, value: -22, to: .now)
+            dateOfBirth: Calendar.current.date(byAdding: .year, value: -22, to: .now),
+            displayName: "Alex"
         )
     }
 
@@ -68,6 +79,7 @@ struct MockHealthDataProvider: HealthDataProviding {
         let sleepHours = 7.0 + wave * 0.6
         let bedtime = Calendar.current.date(bySettingHour: 23, minute: 40, second: 0, of: date)
         let wake = Calendar.current.date(bySettingHour: 7, minute: 35, second: 0, of: date)
+        let intake = 2_350 + wave * 220
 
         return DailyStats(
             date: date,
@@ -87,7 +99,12 @@ struct MockHealthDataProvider: HealthDataProviding {
                 bedtime: bedtime,
                 wakeTime: wake
             ),
-            workoutMinutes: offsetFromToday % 3 == 1 ? 35 : (offsetFromToday % 5 == 0 ? 45 : 0)
+            workoutMinutes: offsetFromToday % 3 == 1 ? 35 : (offsetFromToday % 5 == 0 ? 45 : 0),
+            intakeCalories: intake.rounded(),
+            proteinGrams: (150 + wave * 15).rounded(),
+            carbGrams: (260 + wave * 30).rounded(),
+            fatGrams: (78 + wave * 8).rounded(),
+            distanceMiles: round1(Double(max(3200, steps)) / 2_100)
         )
     }
 

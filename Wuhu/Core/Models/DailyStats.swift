@@ -12,6 +12,13 @@ struct DailyStats: Equatable, Sendable, Identifiable {
     var hrvSDNN: Double?
     var sleep: SleepSummary?
     var workoutMinutes: Double?
+    /// Dietary energy consumed, including what MyNetDiary writes to Apple Health.
+    var intakeCalories: Double? = nil
+    var proteinGrams: Double? = nil
+    var carbGrams: Double? = nil
+    var fatGrams: Double? = nil
+    /// Walking plus running distance for the day, in miles.
+    var distanceMiles: Double? = nil
 }
 
 struct SleepSummary: Equatable, Sendable {

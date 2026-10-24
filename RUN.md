@@ -20,7 +20,7 @@ You do **not** run a single `.swift` file. iOS apps launch from Xcode.
 
 4. Press **Cmd+R** (Run).
 
-Mock data is on by default (`-useMockData` in the scheme).
+Wuhu reads **Apple Health** on a real device. The simulator usually shows empty metrics until you add Health samples.
 
 ## Entry point
 

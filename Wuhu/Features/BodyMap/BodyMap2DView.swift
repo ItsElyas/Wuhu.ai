@@ -4,6 +4,7 @@ import SwiftUI
 struct BodyMap2DView: View {
     var showFront: Bool
     var statusForPart: (BodyPart) -> (BodyStatus, Double)
+    var wearLevelForPart: ((BodyPart) -> WearLevel)?
     var weeklyLoadForPart: ((BodyPart) -> Double)?
     var heatMode: Bool
     var onSelect: (BodyPart) -> Void
@@ -18,6 +19,15 @@ struct BodyMap2DView: View {
                     let fill: Color = {
                         if heatMode, let load = weeklyLoadForPart?(region.part), load > 0 {
                             return Color.orange.opacity(min(0.85, 0.2 + load * 0.25))
+                        }
+                        if status.0 == .injured {
+                            return AppColors.wearColor(for: .severe).opacity(0.9)
+                        }
+                        if let wearLevelForPart {
+                            let level = wearLevelForPart(region.part)
+                            if level != .none {
+                                return AppColors.wearColor(for: level).opacity(0.9)
+                            }
                         }
                         if status.0 == .healthy {
                             return AppColors.skinTone.opacity(0.85)

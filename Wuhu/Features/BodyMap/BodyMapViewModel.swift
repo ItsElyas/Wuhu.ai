@@ -20,19 +20,17 @@ final class BodyMapViewModel {
         records.first { $0.part == part && $0.status != .healthy }
     }
 
-    func effectiveStatus(for part: BodyPart, in records: [BodyPartStatusRecord]) -> (BodyStatus, Double) {
-        guard let record = records.first(where: { $0.part == part }) else {
-            return (.healthy, 0)
-        }
-        if record.status == .worked {
-            let decayed = WorkoutLoadMapper.decayedIntensity(
-                base: record.intensity,
-                hoursSince: record.hoursSinceUpdate
-            )
-            if decayed <= 0.05 { return (.healthy, 0) }
-            return (.worked, decayed)
-        }
-        return (record.status, record.intensity)
+    func effectiveStatus(
+        for part: BodyPart,
+        in records: [BodyPartStatusRecord],
+        wear: [BodyPart: WearLevel]
+    ) -> (BodyStatus, Double) {
+        let record = records.first(where: { $0.part == part })
+        return WearTearEngine.bodyMapStatus(for: part, wear: wear, record: record)
+    }
+
+    func wearLevel(for part: BodyPart, wear: [BodyPart: WearLevel]) -> WearLevel {
+        wear[part] ?? .none
     }
 
     func weeklyLoad(for part: BodyPart, workouts: [WorkoutRecord]) -> Double {

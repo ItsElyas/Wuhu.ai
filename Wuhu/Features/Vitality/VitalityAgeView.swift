@@ -30,10 +30,9 @@ struct VitalityAgeView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    wslScoreCard
                     if showCollecting {
                         collectingCard
-                    } else {
-                        mainAgeCard
                     }
                     scoreTiles
                     driversList
@@ -51,16 +50,12 @@ struct VitalityAgeView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Vitality Age")
+            .navigationTitle("WSL Score")
         }
     }
 
     private var showCollecting: Bool {
         app.latestScores?.insufficientData == true || app.latestScores?.vitalityAge?.years == nil
-    }
-
-    private var vitalityYears: Double {
-        app.latestScores?.vitalityAge?.years ?? 0
     }
 
     private var ageDelta: Double {
@@ -87,22 +82,27 @@ struct VitalityAgeView: View {
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
     }
 
-    private var mainAgeCard: some View {
+    private var wslScoreCard: some View {
         VStack(spacing: 8) {
-            Text("Vitality Age")
+            Text("WSL Score")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            Text(String(format: "%.1f", vitalityYears))
+            Text(WSLRank.placeholder.displayName)
                 .font(.system(size: 56, weight: .bold, design: .rounded))
                 .foregroundStyle(AppColors.vitality)
-            Text("Chronological \(app.settings.chronologicalAge)")
-            Text(VitalityAgePresentation.deltaLabel(delta: ageDelta))
-                .font(.headline)
-                .foregroundStyle(VitalityAgePresentation.deltaColor(delta: ageDelta))
+            if !showCollecting {
+                Text("Chronological \(app.settings.chronologicalAge)")
+                Text(VitalityAgePresentation.deltaLabel(delta: ageDelta))
+                    .font(.headline)
+                    .foregroundStyle(VitalityAgePresentation.deltaColor(delta: ageDelta))
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(24)
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("WSL Score")
+        .accessibilityValue(WSLRank.placeholder.displayName)
     }
 
     private var scoreTiles: some View {

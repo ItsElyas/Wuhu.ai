@@ -4,69 +4,55 @@ import SwiftData
 struct RootView: View {
     @Environment(AppEnvironment.self) private var app
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showAIConsent = false
+    @Query(filter: #Predicate<HubSession> { $0.endedAt == nil }, sort: \HubSession.startedAt, order: .reverse)
+    private var activeSessions: [HubSession]
+
+    private var activeSession: HubSession? { activeSessions.first }
 
     var body: some View {
-        TabView {
-            DashboardView()
-                .tabItem { Label("Dashboard", systemImage: "heart.text.square") }
-            WorkoutListView()
-                .tabItem { Label("Workouts", systemImage: "figure.run") }
-            ChatView()
-                .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
-            VitalityAgeView()
-                .tabItem { Label("Vitality", systemImage: "sparkles") }
-        }
-        .task {
-            seedMockBodyStatusIfNeeded()
-            await app.bootstrap(modelContext: modelContext)
-            if !app.settings.aiConsentShown {
-                showAIConsent = true
+        @Bindable var app = app
+        HomeView()
+            .overlay {
+                if let activeSession, !app.isWorkoutLoggerPresented {
+                    ActiveWorkoutBubble(session: activeSession) {
+                        app.isWorkoutLoggerPresented = true
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                }
             }
-        }
-        .sheet(isPresented: $showAIConsent) {
-            AIConsentView(isPresented: $showAIConsent)
-                .environment(app)
-                .presentationDetents([.medium])
-        }
-    }
-
-    private func seedMockBodyStatusIfNeeded() {
-        guard app.settings.useMockData else { return }
-        let existing = (try? modelContext.fetch(FetchDescriptor<BodyPartStatusRecord>())) ?? []
-        guard existing.isEmpty else { return }
-        modelContext.insert(
-            BodyPartStatusRecord(
-                part: .leftQuad,
-                status: .sore,
-                severity: 3,
-                note: "After tempo run",
-                startedAt: Calendar.current.date(byAdding: .day, value: -1, to: .now) ?? .now,
-                source: .manual,
-                intensity: 0.8
-            )
-        )
-        modelContext.insert(
-            BodyPartStatusRecord(
-                part: .rightKnee,
-                status: .injured,
-                severity: 2,
-                note: "Marked by you",
-                startedAt: Calendar.current.date(byAdding: .day, value: -6, to: .now) ?? .now,
-                source: .manual,
-                intensity: 1
-            )
-        )
-        modelContext.insert(
-            BodyPartStatusRecord(
-                part: .chest,
-                status: .worked,
-                severity: 1,
-                startedAt: Calendar.current.date(byAdding: .hour, value: -20, to: .now) ?? .now,
-                source: .autoWorkout,
-                intensity: 0.7
-            )
-        )
-        try? modelContext.save()
+            .animation(.easeInOut(duration: 0.2), value: activeSession?.id)
+            .fullScreenCover(isPresented: $app.isWorkoutLoggerPresented) {
+                if let activeSession {
+                    ActiveWorkoutView(session: activeSession)
+                        .environment(app)
+                }
+            }
+            .onChange(of: activeSession?.id) { _, newValue in
+                // Logger closes itself when the workout is finished or discarded.
+                if newValue == nil { app.isWorkoutLoggerPresented = false }
+            }
+            .onOpenURL { url in
+                guard WorkoutDeepLink.isWorkoutURL(url), activeSession != nil else { return }
+                app.isWorkoutLoggerPresented = true
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .active {
+                    WorkoutLiveActivityController.reconcile(activeSession: activeSession)
+                }
+            }
+            .task {
+                WorkoutLiveActivityController.reconcile(activeSession: activeSession)
+                await app.bootstrap(modelContext: modelContext)
+                if !app.settings.aiConsentShown {
+                    showAIConsent = true
+                }
+            }
+            .sheet(isPresented: $showAIConsent) {
+                AIConsentView(isPresented: $showAIConsent)
+                    .environment(app)
+                    .presentationDetents([.medium])
+            }
     }
 }

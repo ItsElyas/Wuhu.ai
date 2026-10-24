@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>PlusJakartaSans-Regular.ttf</string>
+		<string>PlusJakartaSans-Medium.ttf</string>
+		<string>PlusJakartaSans-SemiBold.ttf</string>
+		<string>PlusJakartaSans-Bold.ttf</string>
+		<string>PlusJakartaSans-ExtraBold.ttf</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.elyaskhoubach.wuhu</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>wuhu</string>
+			</array>
+		</dict>
+	</array>
+	<key>GEMINI_API_KEY</key>
+	<string>$(GEMINI_API_KEY)</string>
+	<key>GEMINI_BASE_URL</key>
+	<string>$(GEMINI_BASE_URL)</string>
+	<key>GEMINI_MODEL</key>
+	<string>$(GEMINI_MODEL)</string>
+	<key>LLM_API_KEY</key>
+	<string>$(LLM_API_KEY)</string>
+	<key>LLM_BASE_URL</key>
+	<string>$(LLM_BASE_URL)</string>
+	<key>LLM_MODEL</key>
+	<string>$(LLM_MODEL)</string>
+	<key>MYNETDIARY_API_KEY</key>
+	<string>$(MYNETDIARY_API_KEY)</string>
+	<key>MYNETDIARY_BASE_URL</key>
+	<string>$(MYNETDIARY_BASE_URL)</string>
+	<key>MYNETDIARY_USER_ID</key>
+	<string>$(MYNETDIARY_USER_ID)</string>
+</dict>
+</plist>
