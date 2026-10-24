@@ -185,11 +185,9 @@ struct VitalityAgeView: View {
     }
 
     private func driverRow(_ driver: ScoreDriver) -> some View {
-        let effect = driver.effectYears ?? 0
-        let isHelpful = effect <= 0
-        return HStack(alignment: .top) {
-            Image(systemName: isHelpful ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
-                .foregroundStyle(isHelpful ? Color.green : Color.orange)
+        HStack(alignment: .top) {
+            Image(systemName: (driver.effectYears ?? 0) <= 0 ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                .foregroundStyle((driver.effectYears ?? 0) <= 0 ? Color.green : Color.orange)
             VStack(alignment: .leading, spacing: 2) {
                 Text(driver.metric.replacingOccurrences(of: "_", with: " ").capitalized)
                     .font(.headline)
