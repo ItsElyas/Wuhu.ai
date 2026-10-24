@@ -1,42 +1,70 @@
-# Local-first workflow
+# Sync code between Cloud Agent and your Mac
 
-Edits happen in this project folder. **GitHub / Origin remotes are deferred** — wire those up later when you are ready.
+## Which repo has the latest Wuhu project?
 
-## What to run
+| Remote | URL | Latest `main`? |
+|--------|-----|----------------|
+| **Agent mirror (use this to pull)** | `https://origin.cursor.com/git/elyas-khoubach/tmp-35a06042bcb4d8af.git` | Yes — Cloud Agent pushes here after every change |
+| **Your Wuhu repo** | `https://origin.cursor.com/git/elyas-khoubach/Wuhu.git` | Only if you pushed or merged agent work into it |
 
-| Open this | Not this |
-|---|---|
-| **`Wuhu.xcodeproj`** (repo root) | Individual `.swift` files |
-| Scheme **Wuhu**, then **Cmd+R** | `swift WuhuApp.swift` |
+The agent **cannot** push to `elyas-khoubach/Wuhu` from this environment (403). Pull from the **agent mirror** first, then optionally push to `Wuhu` from your Mac.
 
-App entry: [`Wuhu/App/WuhuApp.swift`](Wuhu/App/WuhuApp.swift). Migration from HealthTracker: [MIGRATION.md](MIGRATION.md). Run steps: [RUN.md](RUN.md).
+## Pull on your Mac (recommended)
 
-## Open in Xcode (on this Mac)
+### Option A — Fresh folder (clearest)
 
 ```bash
-cd /path/to/this/repo
+cd ~/Developer   # or wherever you keep projects
+git clone https://origin.cursor.com/git/elyas-khoubach/tmp-35a06042bcb4d8af.git Wuhu
+cd Wuhu
 open Wuhu.xcodeproj
 ```
 
-Signing (first run):
+Sign in to Origin when Git asks. Scheme **Wuhu** → **Cmd+R**. See [MIGRATION.md](MIGRATION.md) if you used `HealthTracker.xcodeproj` before.
 
-1. **Wuhu** target → **Signing & Capabilities**
-2. Team → your Personal Team  
-3. Bundle Identifier → `com.elyaskhoubach.wuhu`  
-4. Automatically manage signing → on  
+### Option B — Update an existing folder
 
-## What “local” means right now
+```bash
+cd /path/to/your/Wuhu-or-HealthTracker-folder
+git remote remove agent 2>/dev/null
+git remote add agent https://origin.cursor.com/git/elyas-khoubach/tmp-35a06042bcb4d8af.git
+git fetch agent
+git checkout main
+git merge agent/main
+# or, if you want to match agent exactly (discards local uncommitted work):
+# git reset --hard agent/main
+open Wuhu.xcodeproj
+```
 
-- App data: mock Health data / on-device SwiftData (no backend required)
-- LLM keys: optional `Secrets.xcconfig` (git-ignored); otherwise local scoring fallback
-- Source of truth: the files in this repo, not a remote visibility setting
+### Option C — Point `origin` at the agent mirror
 
-## Later: GitHub integration
+```bash
+cd /path/to/your/repo
+git remote set-url origin https://origin.cursor.com/git/elyas-khoubach/tmp-35a06042bcb4d8af.git
+git pull origin main
+open Wuhu.xcodeproj
+```
 
-When you want remotes again:
+## After you have the code on your Mac
 
-1. Create a GitHub repo (empty, no README if this tree already has one)
-2. Point `origin` at it and push `main`
-3. Clone on other machines with `git clone` / Xcode SCM as usual
+Push to your personal **Wuhu** repo (if you use it):
 
-Until then, ignore Origin collaborator/visibility settings — personal Origin repos stay private by design and are optional for day-to-day builds.
+```bash
+git remote add wuhu https://origin.cursor.com/git/elyas-khoubach/Wuhu.git
+git push wuhu main
+```
+
+## What to run in Xcode
+
+| Open this | Not this |
+|---|---|
+| **`Wuhu.xcodeproj`** | `HealthTracker.xcodeproj` (removed) |
+| Scheme **Wuhu**, **Cmd+R** | Running a single `.swift` file |
+
+Entry: [`Wuhu/App/WuhuApp.swift`](Wuhu/App/WuhuApp.swift). Run steps: [RUN.md](RUN.md).
+
+Signing: **Wuhu** target → Team → bundle ID `com.elyaskhoubach.wuhu`.
+
+## Later: GitHub
+
+When ready, add GitHub as `origin` and push `main` — same tree as after pulling the agent mirror.
