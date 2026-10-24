@@ -41,6 +41,8 @@ cd /path/to/this/repo
 open HealthTracker.xcodeproj
 ```
 
+Then scheme **HealthTracker** → iOS 18 simulator → **Cmd+R**. See [RUN.md](RUN.md) (entry point: `HealthTracker/App/HealthTrackerApp.swift`).
+
 When you add GitHub later:
 
 ```bash

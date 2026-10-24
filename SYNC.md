@@ -2,12 +2,19 @@
 
 Edits happen in this project folder. **GitHub / Origin remotes are deferred** — wire those up later when you are ready.
 
+## What to run
+
+| Open this | Not this |
+|---|---|
+| **`HealthTracker.xcodeproj`** (repo root) | Individual `.swift` files |
+| Scheme **HealthTracker**, then **Cmd+R** | `swift HealthTrackerApp.swift` |
+
+App entry (automatic): [`HealthTracker/App/HealthTrackerApp.swift`](HealthTracker/App/HealthTrackerApp.swift). Full steps: [RUN.md](RUN.md).
+
 ## Open in Xcode (on this Mac)
 
-If this folder is already on your machine:
-
 ```bash
-cd /path/to/Wuhu   # or wherever this repo lives
+cd /path/to/this/repo
 open HealthTracker.xcodeproj
 ```
 
