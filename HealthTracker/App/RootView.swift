@@ -12,9 +12,9 @@ struct RootView: View {
                 .tabItem { Label("Dashboard", systemImage: "heart.text.square") }
             WorkoutListView()
                 .tabItem { Label("Workouts", systemImage: "figure.run") }
-            ChatView()
+            ChatScreen()
                 .tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
-            VitalityAgeView()
+            VitalityAgeScreen()
                 .tabItem { Label("Vitality", systemImage: "sparkles") }
         }
         .task {
@@ -69,10 +69,4 @@ struct RootView: View {
         )
         try? modelContext.save()
     }
-}
-
-#Preview {
-    RootView()
-        .environment(AppEnvironment())
-        .modelContainer(for: [WorkoutRecord.self, ChatMessage.self, BodyPartStatusRecord.self, CachedScoreResult.self], inMemory: true)
 }
