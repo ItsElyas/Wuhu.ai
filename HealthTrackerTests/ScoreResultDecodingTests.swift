@@ -22,9 +22,13 @@ struct ScoreResultDecodingTests {
 
     @Test func rejectsMalformedJSON() {
         let data = Data("{not-json".utf8)
-        #expect(throws: Error.self) {
-            try JSONDecoder().decode(ScoreResult.self, from: data)
+        var failed = false
+        do {
+            _ = try JSONDecoder().decode(ScoreResult.self, from: data)
+        } catch {
+            failed = true
         }
+        #expect(failed)
     }
 
     @Test func allowsExtraFields() throws {
